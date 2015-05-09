@@ -1,10 +1,15 @@
+#include <cstdlib>
 #include "cirGate.h"
 #include "cirMgr.h"
 
-#include <cstdlib>
-
+/************************/
+/*   extern variables   */
+/************************/
 extern CirMgr* cirMgr;
 
+/**************************************/
+/*   class CirGate public functions   */
+/**************************************/
 // constructor
 CirGate::CirGate(unsigned id, const string& name, 
                  const IdList& faninIdList): 

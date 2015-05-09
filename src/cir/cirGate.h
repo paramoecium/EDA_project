@@ -1,10 +1,12 @@
-#include "cirDef.h"
-
 #include <vector>
 #include <string>
+#include "cirDef.h"
 
 using namespace std;
 
+/*********************/
+/*   class CirGate   */
+/*********************/
 class CirGate
 {
 public:
@@ -13,7 +15,7 @@ public:
    // basic gate information
    unsigned getId() const { return _id; }
    string getName() const { return _name; }
-   unsigned getFaninId(const unsigned& idx) const { 
+   unsigned getFaninId(unsigned idx) const { 
       return _faninIdList[idx]; 
    }
    unsigned getFaninNum() const { return _faninIdList.size(); }
@@ -45,6 +47,9 @@ protected:
    unsigned          _cutIdx;
 };
 
+/******************************************/
+/*   inherited class from class CirGate   */
+/******************************************/
 class CirPiGate: public CirGate
 {
 public: 

@@ -8,11 +8,13 @@
 using namespace std;
 
 /********************/
-/*   Class CirMgr   */
+/*   class CirMgr   */
 /********************/
 class CirMgr
 {
 public:
+   CirMgr();
+
    CirGate* getGateById(unsigned id) const {
       return _gateList[id];
    }
@@ -20,7 +22,6 @@ public:
    // create gates
    void createGate(GateType, const string&, 
                    const vector<string>&);
-   
    // create netlist
    void linkGates();
    void buildDfsList();
