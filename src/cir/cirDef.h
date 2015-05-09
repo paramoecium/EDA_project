@@ -19,7 +19,8 @@ enum GateType{
    GATE_NOR,
    GATE_XOR,
    GATE_XNOR,
-   
+
+   // dummy end
    GATE_END
 };
 

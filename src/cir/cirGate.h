@@ -1,10 +1,15 @@
-#include "cirDef.h"
+#ifndef _CIRGATE_H_
+#define _CIRGATE_H_
 
 #include <vector>
 #include <string>
+#include "cirDef.h"
 
 using namespace std;
 
+/*********************/
+/*   Class CirGate   */
+/*********************/
 class CirGate
 {
 public:
@@ -25,18 +30,22 @@ public:
    bool getCutIdx() const { return _cutIdx; }
 
 protected:
+   // gate id and gate name
    unsigned          _id;
    string            _name;
-   // fanin and fanout
+   // fanin and fanout list
    IdList            _faninIdList;
    GateList          _faninGateList;
    GateList          _fanoutGateList;
    // simulation value
    unsigned          _simVal;
-   // cut
+   // cut id
    unsigned          _cutIdx;
 };
 
+/**************************************/
+/*   inheritance class from CirGate   */
+/**************************************/
 class CirPiGate: public CirGate
 {
 public: 
@@ -107,3 +116,4 @@ public:
    void simulate();
 };
 
+#endif

@@ -1,10 +1,15 @@
+#ifndef _CIRMGR_H_
+#define _CIRMGR_H_
+
 #include <map>
 #include <string>
-
 #include "cirDef.h"
 
 using namespace std;
 
+/********************/
+/*   Class CirMgr   */
+/********************/
 class CirMgr
 {
 public:
@@ -30,3 +35,5 @@ private:
    unsigned                _varNum;
 
 };
+
+#endif
