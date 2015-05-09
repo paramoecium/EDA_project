@@ -1,15 +1,10 @@
-#ifndef _CIRGATE_H_
-#define _CIRGATE_H_
+#include "cirDef.h"
 
 #include <vector>
 #include <string>
-#include "cirDef.h"
 
 using namespace std;
 
-/*********************/
-/*   Class CirGate   */
-/*********************/
 class CirGate
 {
 public:
@@ -18,7 +13,15 @@ public:
    // basic gate information
    unsigned getId() const { return _id; }
    string getName() const { return _name; }
+   unsigned getFaninId(const unsigned& idx) const { 
+      return _faninIdList[idx]; 
+   }
+   unsigned getFaninNum() const { return _faninIdList.size(); }
    virtual string getGateType() const = 0;
+
+   // set gate information
+   void addFanin(CirGate* g) { _faninGateList.push_back(g); }
+   void addFanout(CirGate* g) { _fanoutGateList.push_back(g); }
 
    // simulation
    virtual void simulate() = 0;
@@ -30,25 +33,22 @@ public:
    bool getCutIdx() const { return _cutIdx; }
 
 protected:
-   // gate id and gate name
    unsigned          _id;
    string            _name;
-   // fanin and fanout list
+   // fanin and fanout
    IdList            _faninIdList;
    GateList          _faninGateList;
    GateList          _fanoutGateList;
    // simulation value
    unsigned          _simVal;
-   // cut id
+   // cut
    unsigned          _cutIdx;
 };
 
-/**************************************/
-/*   inheritance class from CirGate   */
-/**************************************/
 class CirPiGate: public CirGate
 {
 public: 
+   CirPiGate(unsigned, const string&, const IdList&); 
    string getGateType() const { return "Pi"; }
    void simulate();
 };
@@ -56,6 +56,7 @@ public:
 class CirPoGate: public CirGate
 {
 public: 
+   CirPoGate(unsigned, const string&, const IdList&); 
    string getGateType() const { return "Po"; }
    void simulate();
 };
@@ -63,6 +64,7 @@ public:
 class CirBufGate: public CirGate
 {
 public: 
+   CirBufGate(unsigned, const string&, const IdList&); 
    string getGateType() const { return "Buf"; }
    void simulate();
 };
@@ -70,6 +72,7 @@ public:
 class CirInvGate: public CirGate
 {
 public: 
+   CirInvGate(unsigned, const string&, const IdList&); 
    string getGateType() const { return "Inv"; }
    void simulate();
 };
@@ -77,6 +80,7 @@ public:
 class CirAndGate: public CirGate
 {
 public: 
+   CirAndGate(unsigned, const string&, const IdList&); 
    string getGateType() const { return "And"; }
    void simulate();
 };
@@ -84,6 +88,7 @@ public:
 class CirNandGate: public CirGate
 {
 public: 
+   CirNandGate(unsigned, const string&, const IdList&); 
    string getGateType() const { return "Nand"; }
    void simulate();
 };
@@ -91,6 +96,7 @@ public:
 class CirOrGate: public CirGate
 {
 public: 
+   CirOrGate(unsigned, const string&, const IdList&); 
    string getGateType() const { return "Or"; }
    void simulate();
 };
@@ -98,6 +104,7 @@ public:
 class CirNorGate: public CirGate
 {
 public: 
+   CirNorGate(unsigned, const string&, const IdList&); 
    string getGateType() const { return "Nor"; }
    void simulate();
 };
@@ -105,6 +112,7 @@ public:
 class CirXorGate: public CirGate
 {
 public: 
+   CirXorGate(unsigned, const string&, const IdList&); 
    string getGateType() const { return "Xor"; }
    void simulate();
 };
@@ -112,8 +120,8 @@ public:
 class CirXnorGate: public CirGate
 {
 public: 
+   CirXnorGate(unsigned, const string&, const IdList&); 
    string getGateType() const { return "Xnor"; }
    void simulate();
 };
 
-#endif

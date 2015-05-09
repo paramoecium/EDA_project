@@ -1,22 +1,55 @@
-#include <cstdlib>
 #include "cirGate.h"
 #include "cirMgr.h"
 
-/************************/
-/*   extern variables   */
-/************************/
+#include <cstdlib>
+
 extern CirMgr* cirMgr;
 
-/**************************************/
-/*   Class CirGate public functions   */
-/**************************************/
+// constructor
 CirGate::CirGate(unsigned id, const string& name, 
                  const IdList& faninIdList): 
    _id(id), _name(name), _faninIdList(faninIdList) {}
 
-/****************************************/
-/*   inherited class public functions   */
-/****************************************/
+CirPiGate::CirPiGate(unsigned id, const string& name, 
+                         const IdList& faninIdList): 
+   CirGate(id, name, faninIdList){}
+
+CirPoGate::CirPoGate(unsigned id, const string& name, 
+                         const IdList& faninIdList): 
+   CirGate(id, name, faninIdList){}
+
+CirBufGate::CirBufGate(unsigned id, const string& name, 
+                         const IdList& faninIdList): 
+   CirGate(id, name, faninIdList){}
+
+CirInvGate::CirInvGate(unsigned id, const string& name, 
+                         const IdList& faninIdList): 
+   CirGate(id, name, faninIdList){}
+
+CirAndGate::CirAndGate(unsigned id, const string& name, 
+                         const IdList& faninIdList): 
+   CirGate(id, name, faninIdList){}
+
+CirNandGate::CirNandGate(unsigned id, const string& name, 
+                         const IdList& faninIdList): 
+   CirGate(id, name, faninIdList){}
+
+CirOrGate::CirOrGate(unsigned id, const string& name, 
+                         const IdList& faninIdList): 
+   CirGate(id, name, faninIdList){}
+
+CirNorGate::CirNorGate(unsigned id, const string& name, 
+                         const IdList& faninIdList): 
+   CirGate(id, name, faninIdList){}
+
+CirXorGate::CirXorGate(unsigned id, const string& name, 
+                         const IdList& faninIdList): 
+   CirGate(id, name, faninIdList){}
+
+CirXnorGate::CirXnorGate(unsigned id, const string& name, 
+                         const IdList& faninIdList): 
+   CirGate(id, name, faninIdList){}
+
 // simulation
 void
 CirPiGate::simulate(){
