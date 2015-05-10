@@ -1,4 +1,5 @@
 #include <iostream>
+#include "cirMgr.h"
 
 using namespace std;
 
