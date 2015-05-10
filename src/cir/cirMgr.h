@@ -18,6 +18,8 @@ public:
    CirGate* getGateById(unsigned id) const {
       return _gateList[id];
    }
+   // read input file
+   bool readCircuit(const string&);
 
    // create gates
    void createGate(GateType, const string&, 
