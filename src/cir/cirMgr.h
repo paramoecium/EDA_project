@@ -28,7 +28,11 @@ public:
    void linkGates();
    void buildDfsList();
 
+   // circuit reporting
+   void printNetlist() const;
+
 private:
+   void dfs(CirGate*);
    unsigned getIdByName(const string& name);
 
    GateList                _gateList;

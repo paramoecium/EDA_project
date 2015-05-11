@@ -5,6 +5,7 @@
 /*   global variables   */
 /************************/
 CirMgr* cirMgr;
+unsigned dfsFlag = 0;
 
 /*************************************/
 /*   class CirMgr public functions   */
@@ -19,51 +20,66 @@ CirMgr::readCircuit(const string& filename) {
       return false;
    }
    string line, par;
-   getline(fin, line);
    vector<string> params;
    //neglect the "module top" part
-   while (line.substr(0,5) != "input") 
+   //neglect the "module top" part
+   while (line.substr(0,5) != "input") {
       getline(fin, line);
+      cout<<"//"<<line<<"\n";
+   }
    //parse "output" part
-   while (line.substr(0,6) != "output") 
+   while (line.substr(0,6) != "output")  {
       getline(fin, line);
+      cout<<"//"<<line<<"\n";
+   }
    //parse "wire" part
-   while (line.substr(0,4) != "wire") 
-      getline(fin, line);
+   while (line.substr(0,4) != "wire")  {
+      do {
+         getline(fin, line);
+         cout<<"//"<<line<<"\n";
+         size_t pos = 0;
+         while (pos!=std::string::npos) {
+            pos = myStrGetTok(line, par, pos," (),;\n");
+         }
+      } while (line.find(";")==string::npos);//may go wrong
+   }
    //parse gate descriptions
    params.clear();
    par = "";
-   while (line.substr(0,9) != "endmodule") {
+   while (true) {
       do {
+         getline(fin, line);
+         cout<<"\n//"<<line<<"\n";
+         if (line.substr(0,9) == "endmodule") break;
          size_t pos = 0;
          while (pos!=std::string::npos) {
-            pos = myStrGetTok(line, par, pos," (),\n");
-            params.push_back(par);
+            pos = myStrGetTok(line, par, pos," (),;\n");
+            if(par.length()>0) cout<<par<<"_";
+            if(par.length()>0) params.push_back(par);
          }
-         getline(fin, line);
-      } while (par.compare(";")!=0);
+      } while (line.find(";")==string::npos);//may go wrong
+      if (line.substr(0,9) == "endmodule") break;
       params.pop_back();// ";"
-      GateType type = GATE_END;
+      GateType gatetype = GATE_END;
       if(params[0].compare("buf")==0)
-         type = GATE_BUF;
+         gatetype = GATE_BUF;
       else if(params[0].compare("inv")==0)
-         type = GATE_INV;
+         gatetype = GATE_INV;
       else if(params[0].compare("and")==0)
-         type = GATE_AND;
+         gatetype = GATE_AND;
       else if(params[0].compare("nand")==0)
-         type = GATE_NAND;
+         gatetype = GATE_NAND;
       else if(params[0].compare("or")==0)
-         type = GATE_OR;
+         gatetype = GATE_OR;
       else if(params[0].compare("nor")==0)
-         type = GATE_NOR;
+         gatetype = GATE_NOR;
       else if(params[0].compare("xor")==0)
-         type = GATE_XOR;
+         gatetype = GATE_XOR;
       else if(params[0].compare("xnor")==0)
-         type = GATE_XNOR;
-      createGate(type, params[1], vector<string>(++(params.begin()), params.end()));
+         gatetype = GATE_XNOR;
+      createGate(gatetype, params[1], vector<string>(++++(params.begin()), params.end()));
       params.clear();
       par = "";
-      getline(fin, line);
    }
    return true;
 }
@@ -127,6 +143,17 @@ CirMgr::linkGates(){
 
 void
 CirMgr::buildDfsList(){
+   ++dfsFlag;
+   for(unsigned i=0, m=_gateList.size(); i<m; ++i)
+      dfs(_gateList[i]);
+}
+
+void 
+CirMgr::printNetlist() const{
+   for(unsigned i=0, m=_dfsList.size(); i<m; ++i){
+      cout << "[" << i << "]";
+      _dfsList[i]->printGate();
+   }
 }
 
 /**************************************/
@@ -137,4 +164,14 @@ CirMgr::getIdByName(const string& name){
    if(_varMap.find(name) == _varMap.end())
       _varMap[name] = _varNum++;
    return _varMap[name];
+}
+
+// used in buildDfsList
+void
+CirMgr::dfs(CirGate* gate){
+   if(gate->isMark()) return;
+   gate->mark();
+   for(unsigned i=0, m=gate->getFaninNum(); i<m; ++i)
+      dfs(gate->getFaninGate(i));
+   _dfsList.push_back(gate);
 }
