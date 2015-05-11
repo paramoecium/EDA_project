@@ -1,7 +1,9 @@
 #include <cstdlib>
+#include <iostream>
 #include "cirGate.h"
 #include "cirMgr.h"
 
+using namespace std;
 /************************/
 /*   extern variables   */
 /************************/
@@ -132,4 +134,13 @@ CirXnorGate::simulate(){
       _simVal ^= gate->getSimOutput(); 
    }
    _simVal = ~_simVal;
+}
+
+// print function
+void
+CirGate::printGate() const{
+   cout << getGateType() << " ";
+   for(unsigned i=0, m=_faninIdList.size(); i<m; ++i)
+      cout << _faninIdList[i] << " ";
+   cout << endl;
 }

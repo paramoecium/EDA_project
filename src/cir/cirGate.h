@@ -4,6 +4,11 @@
 
 using namespace std;
 
+/************************/
+/*   extern variables   */
+/************************/
+extern unsigned dfsFlag;
+
 /*********************/
 /*   class CirGate   */
 /*********************/
@@ -15,11 +20,21 @@ public:
    // basic gate information
    unsigned getId() const { return _id; }
    string getName() const { return _name; }
-   unsigned getFaninId(unsigned idx) const { 
+   unsigned getFaninId(unsigned& idx) const { 
       return _faninIdList[idx]; 
+   }
+   CirGate* getFaninGate(unsigned& idx) const { 
+      return _faninGateList[idx]; 
    }
    unsigned getFaninNum() const { return _faninIdList.size(); }
    virtual string getGateType() const = 0;
+
+   //dfs
+   bool isMark() const { return (_dfsFlag == dfsFlag); }
+   void mark() { _dfsFlag = dfsFlag; }
+
+   // print function
+   virtual void printGate() const;
 
    // set gate information
    void addFanin(CirGate* g) { _faninGateList.push_back(g); }
@@ -45,6 +60,7 @@ protected:
    unsigned          _simVal;
    // cut
    unsigned          _cutIdx;
+   mutable unsigned  _dfsFlag;
 };
 
 /******************************************/

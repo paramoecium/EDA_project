@@ -5,6 +5,7 @@
 /*   global variables   */
 /************************/
 CirMgr* cirMgr;
+unsigned dfsFlag = 0;
 
 /*************************************/
 /*   class CirMgr public functions   */
@@ -142,6 +143,17 @@ CirMgr::linkGates(){
 
 void
 CirMgr::buildDfsList(){
+   ++dfsFlag;
+   for(unsigned i=0, m=_gateList.size(); i<m; ++i)
+      dfs(_gateList[i]);
+}
+
+void 
+CirMgr::printNetlist() const{
+   for(unsigned i=0, m=_dfsList.size(); i<m; ++i){
+      cout << "[" << i << "]";
+      _dfsList[i]->printGate();
+   }
 }
 
 /**************************************/
@@ -152,4 +164,14 @@ CirMgr::getIdByName(const string& name){
    if(_varMap.find(name) == _varMap.end())
       _varMap[name] = _varNum++;
    return _varMap[name];
+}
+
+// used in buildDfsList
+void
+CirMgr::dfs(CirGate* gate){
+   if(gate->isMark()) return;
+   gate->mark();
+   for(unsigned i=0, m=gate->getFaninNum(); i<m; ++i)
+      dfs(gate->getFaninGate(i));
+   _dfsList.push_back(gate);
 }
