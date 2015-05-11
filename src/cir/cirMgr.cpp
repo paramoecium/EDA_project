@@ -40,21 +40,24 @@ CirMgr::readCircuit(const string& filename) {
          while (pos!=std::string::npos) {
             pos = myStrGetTok(line, par, pos," (),;\n");
          }
-      } while (par.find(";")!=string::npos);
+      } while (line.find(";")==string::npos);//may go wrong
    }
    //parse gate descriptions
    params.clear();
    par = "";
-   while (line.substr(0,9) != "endmodule") {
+   while (true) {
       do {
          getline(fin, line);
-         cout<<"//"<<line<<"\n";
+         cout<<"\n//"<<line<<"\n";
+         if (line.substr(0,9) == "endmodule") break;
          size_t pos = 0;
          while (pos!=std::string::npos) {
             pos = myStrGetTok(line, par, pos," (),;\n");
-            params.push_back(par);
+            if(par.length()>0) cout<<par<<"_";
+            if(par.length()>0) params.push_back(par);
          }
-      } while (par.find(";")!=string::npos);
+      } while (line.find(";")==string::npos);//may go wrong
+      if (line.substr(0,9) == "endmodule") break;
       params.pop_back();// ";"
       GateType gatetype = GATE_END;
       if(params[0].compare("buf")==0)
