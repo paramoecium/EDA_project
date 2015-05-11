@@ -19,51 +19,63 @@ CirMgr::readCircuit(const string& filename) {
       return false;
    }
    string line, par;
-   getline(fin, line);
    vector<string> params;
    //neglect the "module top" part
-   while (line.substr(0,5) != "input") 
+   //neglect the "module top" part
+   while (line.substr(0,5) != "input") {
       getline(fin, line);
+      cout<<"//"<<line<<"\n";
+   }
    //parse "output" part
-   while (line.substr(0,6) != "output") 
+   while (line.substr(0,6) != "output")  {
       getline(fin, line);
+      cout<<"//"<<line<<"\n";
+   }
    //parse "wire" part
-   while (line.substr(0,4) != "wire") 
-      getline(fin, line);
+   while (line.substr(0,4) != "wire")  {
+      do {
+         getline(fin, line);
+         cout<<"//"<<line<<"\n";
+         size_t pos = 0;
+         while (pos!=std::string::npos) {
+            pos = myStrGetTok(line, par, pos," (),;\n");
+         }
+      } while (par.find(";")!=string::npos);
+   }
    //parse gate descriptions
    params.clear();
    par = "";
    while (line.substr(0,9) != "endmodule") {
       do {
+         getline(fin, line);
+         cout<<"//"<<line<<"\n";
          size_t pos = 0;
          while (pos!=std::string::npos) {
-            pos = myStrGetTok(line, par, pos," (),\n");
+            pos = myStrGetTok(line, par, pos," (),;\n");
             params.push_back(par);
          }
-         getline(fin, line);
-      } while (par.compare(";")!=0);
+      } while (par.find(";")!=string::npos);
       params.pop_back();// ";"
-      GateType type = GATE_END;
+      GateType gatetype = GATE_END;
       if(params[0].compare("buf")==0)
-         type = GATE_BUF;
+         gatetype = GATE_BUF;
       else if(params[0].compare("inv")==0)
-         type = GATE_INV;
+         gatetype = GATE_INV;
       else if(params[0].compare("and")==0)
-         type = GATE_AND;
+         gatetype = GATE_AND;
       else if(params[0].compare("nand")==0)
-         type = GATE_NAND;
+         gatetype = GATE_NAND;
       else if(params[0].compare("or")==0)
-         type = GATE_OR;
+         gatetype = GATE_OR;
       else if(params[0].compare("nor")==0)
-         type = GATE_NOR;
+         gatetype = GATE_NOR;
       else if(params[0].compare("xor")==0)
-         type = GATE_XOR;
+         gatetype = GATE_XOR;
       else if(params[0].compare("xnor")==0)
-         type = GATE_XNOR;
-      createGate(type, params[1], vector<string>(++(params.begin()), params.end()));
+         gatetype = GATE_XNOR;
+      createGate(gatetype, params[1], vector<string>(++++(params.begin()), params.end()));
       params.clear();
       par = "";
-      getline(fin, line);
    }
    return true;
 }
