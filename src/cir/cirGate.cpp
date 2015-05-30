@@ -21,10 +21,6 @@ CirPiGate::CirPiGate(unsigned id, const string& name,
                          const IdList& faninIdList): 
    CirGate(id, name, faninIdList){}
 
-CirPoGate::CirPoGate(unsigned id, const string& name, 
-                         const IdList& faninIdList): 
-   CirGate(id, name, faninIdList){}
-
 CirBufGate::CirBufGate(unsigned id, const string& name, 
                          const IdList& faninIdList): 
    CirGate(id, name, faninIdList){}
@@ -63,11 +59,6 @@ CirPiGate::simulate(){
    _simVal = rand();
 }
 
-void
-CirPoGate::simulate(){
-   CirGate* gate = _faninGateList[0];
-   _simVal = gate->getSimOutput();
-}
 void 
 CirBufGate::simulate(){ 
    CirGate* gate = _faninGateList[0];

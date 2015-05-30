@@ -12,8 +12,8 @@ CXX       = g++
 CCC       = gcc
 AR        = ar cr
 
-CFLAGS = -O3 -Wall $(PKGFLAG)
-# CFLAGS = -g -Wall -DTA_KB_SETTING $(PKGFLAG)
+#CFLAGS = -O3 -Wall $(PKGFLAG)
+CFLAGS = -g -Wall -DTA_KB_SETTING $(PKGFLAG)
 
 .PHONY: depend extheader
 

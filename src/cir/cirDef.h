@@ -10,7 +10,6 @@ typedef std::vector<unsigned> IdList;
 
 enum GateType{
    GATE_PI,
-   GATE_PO,
    GATE_BUF, 
    GATE_INV,
    GATE_AND,

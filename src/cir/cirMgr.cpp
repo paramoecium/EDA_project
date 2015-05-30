@@ -1,11 +1,29 @@
 #include "cirMgr.h"
 #include "cirGate.h"
 #include "util.h"
+
+using namespace std;
+
 /************************/
 /*   global variables   */
 /************************/
 CirMgr* cirMgr;
 unsigned dfsFlag = 0;
+
+/************************/
+/*   static functions   */
+/************************/
+static GateType getGateTypeByName(const string& name){
+   if(name == "buf" ) return GATE_BUF;
+   if(name == "inv" ) return GATE_INV;
+   if(name == "and" ) return GATE_AND;
+   if(name == "nand") return GATE_NAND;
+   if(name == "or"  ) return GATE_OR;
+   if(name == "nor" ) return GATE_NOR;
+   if(name == "xor" ) return GATE_XOR;
+   if(name == "xnor") return GATE_XNOR;
+   return GATE_END;
+}
 
 /*************************************/
 /*   class CirMgr public functions   */
@@ -15,10 +33,60 @@ CirMgr::CirMgr(): _varNum(0) {}
 bool
 CirMgr::readCircuit(const string& filename) {
    ifstream fin(filename.c_str());
+   vector<char> sep, stop;
+   vector<string> tokens;
+   
+   // initialize seperate char
+   sep.push_back(' ');
+   sep.push_back('\t');
+   sep.push_back('\n');
+   sep.push_back('(');
+   sep.push_back(')');
+   sep.push_back(',');
+   // initialize stop char
+   stop.push_back(';');
+
    if (!fin) {
       cout<<"Cannot open design \""<<filename<<"\"!!"<<endl;
       return false;
    }
+
+   while(!fin.eof()){
+      parseStr(fin, sep, stop, tokens);
+      /*      
+      for(unsigned i=0, n=tokens.size(); i<n; ++i)
+         cout << tokens[i] << " ";
+      cout << endl;
+      */
+      unsigned n = tokens.size();
+      if(n == 0) continue;
+      if(tokens[0] == "module"){
+
+      }
+      else if(tokens[0] == "input"){
+         for(unsigned i=1; i<n; ++i)
+            createPI(tokens[i]);
+      }
+      else if(tokens[0] == "output"){
+         for(unsigned i=1; i<n; ++i)
+            createPO(tokens[1]);
+      }
+      else if(tokens[0] == "wire"){
+         // neglect
+      }
+      else if(tokens[0] == "buf" || tokens[0] == "inv"  ||
+              tokens[0] == "and" || tokens[0] == "nand" ||
+              tokens[0] == "or"  || tokens[0] == "nor"  ||
+              tokens[0] == "xor" || tokens[0] == "xnor" ){
+         GateType type = getGateTypeByName(tokens[0]);
+         vector<string>::iterator st, ed;
+         st = tokens.begin(); ++st; ++st;
+         ed = tokens.end();
+         createGate(type, tokens[1], vector<string>(st, ed));
+      }
+   }
+
+   /*
    string line, par;
    vector<string> params;
    //neglect the "module top" part
@@ -38,7 +106,7 @@ CirMgr::readCircuit(const string& filename) {
          getline(fin, line);
          cout<<"//"<<line<<"\n";
          size_t pos = 0;
-         while (pos!=std::string::npos) {
+         while (pos!=string::npos) {
             pos = myStrGetTok(line, par, pos," (),;\n");
          }
       } while (line.find(";")==string::npos);//may go wrong
@@ -52,7 +120,7 @@ CirMgr::readCircuit(const string& filename) {
          cout<<"\n//"<<line<<"\n";
          if (line.substr(0,9) == "endmodule") break;
          size_t pos = 0;
-         while (pos!=std::string::npos) {
+         while (pos!=string::npos) {
             pos = myStrGetTok(line, par, pos," (),;\n");
             if(par.length()>0) cout<<par<<"_";
             if(par.length()>0) params.push_back(par);
@@ -81,11 +149,27 @@ CirMgr::readCircuit(const string& filename) {
       params.clear();
       par = "";
    }
+   */
    return true;
 }
+
 void
-CirMgr::createGate(GateType type, const string& name,
-                   const vector<string>& input){
+CirMgr::createPI(const string& name){
+   unsigned id = getIdByName(name);
+   CirGate* gate = new CirPiGate(id, name, IdList());
+   if(_gateList.size() <= id) _gateList.resize(id + 1);
+   _gateList[id] = gate;
+   _piList.push_back(id);
+}
+
+void
+CirMgr::createPO(const string& name){
+   unsigned id = getIdByName(name);
+   _poList.push_back(id);
+}
+
+void
+CirMgr::createGate(GateType type, const string& name, const vector<string>& input){
    CirGate* gate = NULL;
    unsigned id = getIdByName(name);
    IdList faninList;
@@ -95,9 +179,6 @@ CirMgr::createGate(GateType type, const string& name,
    switch(type){
       case GATE_PI:
          gate = new CirPiGate(id, name, faninList);
-         break;
-      case GATE_PO:
-         gate = new CirPoGate(id, name, faninList);
          break;
       case GATE_BUF:
          gate = new CirBufGate(id, name, faninList);
@@ -144,14 +225,14 @@ CirMgr::linkGates(){
 void
 CirMgr::buildDfsList(){
    ++dfsFlag;
-   for(unsigned i=0, m=_gateList.size(); i<m; ++i)
-      dfs(_gateList[i]);
+   for(unsigned i=0, n=_poList.size(); i<n; ++i)
+      dfs(getGateById(_poList[i]));
 }
 
 void 
 CirMgr::printNetlist() const{
-   for(unsigned i=0, m=_dfsList.size(); i<m; ++i){
-      cout << "[" << i << "]";
+   for(unsigned i=0, n=_dfsList.size(); i<n; ++i){
+      cout << "[" << i << "] ";
       _dfsList[i]->printGate();
    }
 }
@@ -171,7 +252,7 @@ void
 CirMgr::dfs(CirGate* gate){
    if(gate->isMark()) return;
    gate->mark();
-   for(unsigned i=0, m=gate->getFaninNum(); i<m; ++i)
+   for(unsigned i=0, n=gate->getFaninNum(); i<n; ++i)
       dfs(gate->getFaninGate(i));
    _dfsList.push_back(gate);
 }

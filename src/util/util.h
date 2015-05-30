@@ -9,6 +9,9 @@
 #define UTIL_H
 
 #include <istream>
+#include <fstream>
+#include <string>
+#include <vector>
 #include "rnGen.h"
 #include "myUsage.h"
 
@@ -28,6 +31,9 @@ extern bool isValidVarName(const string& str);
 // In myGetChar.cpp
 extern char myGetChar(istream&);
 extern char myGetChar();
+
+// In myParse.cpp
+extern void parseStr(ifstream& fin, const vector<char>& sep, const vector<char>& stop, vector<std::string>& list);
 
 template<class T>
 void clearList(T& l)

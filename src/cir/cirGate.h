@@ -74,14 +74,6 @@ public:
    void simulate();
 };
 
-class CirPoGate: public CirGate
-{
-public: 
-   CirPoGate(unsigned, const string&, const IdList&); 
-   string getGateType() const { return "Po"; }
-   void simulate();
-};
-
 class CirBufGate: public CirGate
 {
 public: 
