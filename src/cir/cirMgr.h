@@ -22,7 +22,7 @@ public:
       return _gateList[id];
    }
    // read input file
-   bool readCircuit(const string&);
+   bool readCircuit(const string&, bool);
 
    // create gates
    void createPI(const string&);
@@ -40,6 +40,8 @@ public:
 
    // circuit reporting
    void printNetlist() const;
+   void printFECPairs() const;
+   
 
 private:
    void dfs(CirGate*);
@@ -52,7 +54,7 @@ private:
    // variable map
    map<string, unsigned>   _varMap;
    unsigned                _varNum;
-   static vector<IdList*>  _fecGrps; 
+   vector<IdList*>         _fecGrps; 
 
    void genProofModel(SatSolver&);
    bool solveGateEqBySat(SatSolver&, CirGate*, CirGate*,bool);

@@ -5,11 +5,6 @@
 using namespace std;
 
 /************************/
-/*   static variables   */
-/************************/
-vector<IdList*> CirMgr:: _fecGrps;
-
-/************************/
 /*   global variables   */
 /************************/
 CirMgr* cirMgr;
@@ -36,7 +31,9 @@ static GateType getGateTypeByName(const string& name){
 CirMgr::CirMgr(): _varNum(0) {}
 
 bool
-CirMgr::readCircuit(const string& filename) {
+CirMgr::readCircuit(const string& filename, bool design) {
+   // design = 0 -> design A
+   // design = 1 -> design B (another circuit)
    ifstream fin(filename.c_str());
    vector<char> sep, stop;
    vector<string> tokens;
@@ -69,12 +66,16 @@ CirMgr::readCircuit(const string& filename) {
 
       }
       else if(tokens[0] == "input"){
-         for(unsigned i=1; i<n; ++i)
+         for(unsigned i=1; i<n; ++i){
+            if (design) tokens[i] += "_design_B";
             createPI(tokens[i]);
+         }
       }
       else if(tokens[0] == "output"){
-         for(unsigned i=1; i<n; ++i)
-            createPO(tokens[1]);
+         for(unsigned i=1; i<n; ++i){
+            if (design) tokens[i] += "_design_B";
+            createPO(tokens[i]);
+         }
       }
       else if(tokens[0] == "wire"){
          // neglect
@@ -87,6 +88,9 @@ CirMgr::readCircuit(const string& filename) {
          vector<string>::iterator st, ed;
          st = tokens.begin(); ++st; ++st;
          ed = tokens.end();
+         if (design) 
+            for (unsigned i=1, m=tokens.size(); i<m; ++i)
+               tokens[i] += "_design_B";
          createGate(type, tokens[1], vector<string>(st, ed));
       }
    }
@@ -239,6 +243,19 @@ CirMgr::printNetlist() const{
    for(unsigned i=0, n=_dfsList.size(); i<n; ++i){
       cout << "[" << i << "] " << left << setw(5) << _dfsList[i]->getId();
       _dfsList[i]->printGate();
+   }
+}
+
+void
+CirMgr::printFECPairs() const
+{
+   for (size_t i = 0; i < _fecGrps.size(); ++i){
+      cout << "[" << i << "] ";
+      for (size_t j = 0; j < _fecGrps[i]->size(); ++j){
+         if (_fecGrps[i]->at(j)%2 != _fecGrps[i]->at(0)%2) cout << "!";
+         cout << _fecGrps[i]->at(j)/2 << " ";
+      }
+      cout << endl;
    }
 }
 
