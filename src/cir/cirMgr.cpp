@@ -37,6 +37,9 @@ CirMgr::readCircuit(const string& filename, bool design) {
    ifstream fin(filename.c_str());
    vector<char> sep, stop;
    vector<string> tokens;
+   string extraName ="";
+   if (design) extraName = "_design_A";
+   else extraName = "_design_B";
    
    // initialize seperate char
    sep.push_back(' ');
@@ -67,13 +70,19 @@ CirMgr::readCircuit(const string& filename, bool design) {
       }
       else if(tokens[0] == "input"){
          for(unsigned i=1; i<n; ++i){
-            if (design) tokens[i] += "_design_B";
-            createPI(tokens[i]);
+            // One Pi connect to two Buf
+            // Buf are input connect to design_A&B respectively
+            if (design)
+               createPI(tokens[i]);
+            vector<string> BufFanin;
+            BufFanin.push_back(tokens[i]);
+            tokens[i] += extraName;
+            createGate(GATE_BUF, tokens[i], BufFanin);
          }
       }
       else if(tokens[0] == "output"){
          for(unsigned i=1; i<n; ++i){
-            if (design) tokens[i] += "_design_B";
+            tokens[i] += extraName;
             createPO(tokens[i]);
          }
       }
@@ -88,9 +97,8 @@ CirMgr::readCircuit(const string& filename, bool design) {
          vector<string>::iterator st, ed;
          st = tokens.begin(); ++st; ++st;
          ed = tokens.end();
-         if (design) 
-            for (unsigned i=1, m=tokens.size(); i<m; ++i)
-               tokens[i] += "_design_B";
+         for (unsigned i=1, m=tokens.size(); i<m; ++i)
+            tokens[i] += extraName;
          createGate(type, tokens[1], vector<string>(st, ed));
       }
    }

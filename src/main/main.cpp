@@ -18,8 +18,8 @@ main(int argc, char** argv){
    if (argc == 3) {  // <program> <in_1.v> <in_2.v>
       CirMgr* cirMgr = new CirMgr();
       string fileName = "testPattern";
-      cirMgr -> readCircuit(argv[1], false);
-      cirMgr -> readCircuit(argv[2], true);
+      cirMgr -> readCircuit(argv[1], true);
+      cirMgr -> readCircuit(argv[2], false);
       cirMgr -> linkGates();
       cirMgr -> buildDfsList();
       cirMgr -> printNetlist();
