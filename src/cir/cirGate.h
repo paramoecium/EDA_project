@@ -43,6 +43,7 @@ public:
    // simulation
    virtual void simulate() = 0;
    virtual unsigned getSimOutput() const { return _simVal; }
+   void setFecGrp(IdList* p) { _fecGrp=p; }
 
    // cut
    void resetCut(){ _cutIdx = 0; }
@@ -58,6 +59,7 @@ protected:
    GateList          _fanoutGateList;
    // simulation value
    unsigned          _simVal;
+   IdList*           _fecGrp;
    // cut
    unsigned          _cutIdx;
    mutable unsigned  _dfsFlag;
@@ -71,7 +73,8 @@ class CirPiGate: public CirGate
 public: 
    CirPiGate(unsigned, const string&, const IdList&); 
    string getGateType() const { return "Pi"; }
-   void simulate();
+   void simulate() {}
+   void simulate(unsigned);
 };
 
 class CirBufGate: public CirGate

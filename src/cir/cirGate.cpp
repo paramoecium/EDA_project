@@ -55,8 +55,8 @@ CirXnorGate::CirXnorGate(unsigned id, const string& name,
 
 // simulation
 void
-CirPiGate::simulate(){
-   _simVal = rand();
+CirPiGate::simulate(unsigned val){
+   _simVal = val;
 }
 
 void 

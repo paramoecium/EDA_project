@@ -5,6 +5,11 @@
 using namespace std;
 
 /************************/
+/*   static variables   */
+/************************/
+vector<IdList*> CirMgr:: _fecGrps;
+
+/************************/
 /*   global variables   */
 /************************/
 CirMgr* cirMgr;
@@ -232,7 +237,7 @@ CirMgr::buildDfsList(){
 void 
 CirMgr::printNetlist() const{
    for(unsigned i=0, n=_dfsList.size(); i<n; ++i){
-      cout << "[" << i << "] ";
+      cout << "[" << i << "] " << left << setw(5) << _dfsList[i]->getId();
       _dfsList[i]->printGate();
    }
 }

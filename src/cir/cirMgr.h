@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include "cirDef.h"
 
 using namespace std;
@@ -34,9 +35,7 @@ public:
    // Member functions about simulation
    void randomSim();
    void fileSim(ifstream&);
-   void setSimLog(ofstream *logFile) { _simLog = logFile; }
-
-   // Member functions about simulation
+   void genPattern(const string& pattern, const unsigned&);
    void fraig();
 
    // circuit reporting
@@ -46,7 +45,6 @@ private:
    void dfs(CirGate*);
    unsigned getIdByName(const string& name);
 
-   ofstream                *_simLog;
    GateList                _gateList;
    GateList                _dfsList;
    IdList                  _piList;
@@ -65,7 +63,7 @@ private:
    void sortFecGrp(IdList*, vector<IdList*>&);
    void simPi(const unsigned*);
    bool getPiSimFromFile(ifstream&, unsigned*, size_t&);
-   void outputSimValueToFile(size_t);
+   //void outputSimValueToFile(size_t);
 
 };
 
