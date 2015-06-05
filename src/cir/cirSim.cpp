@@ -9,7 +9,6 @@
 #include <fstream>
 #include <iostream>
 #include <iomanip>
-#include <algorithm>
 #include <cassert>
 #include "cirMgr.h"
 #include "cirGate.h"
@@ -25,10 +24,10 @@ using namespace std;
 class SimPValue
 {
 public:
-   SimPValue(size_t v = 0):_value(v) {}
-   size_t operator () () const { 
-      size_t k = _value;
-      for (size_t i = 0; i < (_value % 10); ++i)
+   SimPValue(unsigned v = 0):_value(v) {}
+   unsigned operator () () const { 
+      unsigned k = _value;
+      for (unsigned i = 0; i < (_value % 10); ++i)
          k ^= (_value << (3*i));
       return k; 
    } 
@@ -52,19 +51,19 @@ CirMgr::randomSim()
 {
    unsigned* iv = new unsigned[_pis.size()];
    unsigned failTime = 0, numPattern = 0;
-   for (size_t i = 0; i < _pis.size(); ++i)
+   for (unsigned i = 0; i < _pis.size(); ++i)
       iv[i] = (rand() << 16) ^ rand();
    if (_fecGrps.size() == 0) 
       initFec(iv, 32);
    else checkFec(iv, 32);
    numPattern += 32;
-   size_t stopTime;
+   unsigned stopTime;
    if (_pis.size() < 10) stopTime = _pis.size();
    else if (_pis.size() < 100) stopTime = _pis.size() * _pis.size() / 100 + 10;
    else stopTime = 181;
 
    while (failTime < stopTime && _fecGrps.size()){
-      for (size_t i = 0; i < _pis.size(); ++i)
+      for (unsigned i = 0; i < _pis.size(); ++i)
          iv[i] = (rand() << 16) ^ rand();
       if (!checkFec(iv, 32)) ++failTime;
       numPattern += 32;
@@ -99,7 +98,7 @@ CirMgr::fileSim(ifstream& patternFile)
    
    unsigned* v = new unsigned[_piList.size()];
    unsigned numPattern = 0;
-   for (size_t i = 0; numPattern == 32 * i; ++i){
+   for (unsigned i = 0; numPattern == 32 * i; ++i){
       if (!getPiSimFromFile(patternFile, v, numPattern)){
          numPattern = 32 * i;
          break;
@@ -120,20 +119,20 @@ CirMgr::fileSim(ifstream& patternFile)
 // (called when no fecGroup in fecGroupsList)
 // should not be called if there are fec groups
 void
-CirMgr::initFec(const unsigned* v, const size_t& outputBit)
+CirMgr::initFec(const unsigned* v, const unsigned& outputBit)
 {
    IdList fec;
    // get pi value from v
    // simulation all gate first
-   for (size_t i=0, m=_piList.size(); i < m; ++i){
+   for (unsigned i=0, m=_piList.size(); i < m; ++i){
       //CirPiGate* gate = (CirPiGate*)(getGateById(_piList[i]));
       //gate->simulate(v[i]);
       ((CirPiGate*)getGateById(_piList[i]))->simulate(v[i]);
    }
-   for (size_t i=0, m=_dfsList.size(); i < m; ++i)
+   for (unsigned i=0, m=_dfsList.size(); i < m; ++i)
       _dfsList[i]->simulate();
    fec.push_back(0);
-   for (size_t i = 0, m=_dfsList.size(); i < m; ++i){
+   for (unsigned i = 0, m=_dfsList.size(); i < m; ++i){
       fec.push_back(2*_dfsList[i]->getId());
    }
    sortFecGrp(&fec, _fecGrps);
@@ -143,28 +142,28 @@ CirMgr::initFec(const unsigned* v, const size_t& outputBit)
 // If newFecGroups == old one, retrun false
 // else return true;
 bool 
-CirMgr::checkFec(const unsigned *v, const size_t& outputBit)
+CirMgr::checkFec(const unsigned *v, const unsigned& outputBit)
 {
    bool different = false;
    vector <IdList*> newGrps;
    // get pi value from v
    // simulation all gate
-   for (size_t i=0, m=_piList.size(); i < m; ++i)
+   for (unsigned i=0, m=_piList.size(); i < m; ++i)
       ((CirPiGate*)getGateById(_piList[i]))->simulate(v[i]);
-   for (size_t i=0, m=_dfsList.size(); i < m; ++i)
+   for (unsigned i=0, m=_dfsList.size(); i < m; ++i)
       _dfsList[i]->simulate();
-   for (size_t i = 0; i < _fecGrps.size(); ++i)
+   for (unsigned i = 0; i < _fecGrps.size(); ++i)
       sortFecGrp(_fecGrps[i], newGrps);
    // replace old fecGroupsList by new fecGroupsList
    // check whether old = new
    _fecGrps.swap(newGrps);
    if (newGrps.size() != _fecGrps.size()) different = true;
    else{
-      for (size_t i = 0; i < newGrps.size(); ++i)
+      for (unsigned i = 0; i < newGrps.size(); ++i)
          if (*newGrps[i] != *_fecGrps[i]) different = true;
    }
    // delete old one (release memory)
-   for (size_t i = 0; i < newGrps.size(); ++i)
+   for (unsigned i = 0; i < newGrps.size(); ++i)
       delete newGrps[i];
    return different;
 }
@@ -182,11 +181,11 @@ CirMgr::sortFecGrp(IdList* oldFecGrp, vector <IdList*>& newGrps)
 {
    //HashMap<SimPValue, IdList*> fecHashMap(getHashSize(oldFecGrp->size()));
    HashMap<SimPValue, IdList*> fecHashMap((oldFecGrp->size())/2);
-   for (size_t j = 0; j < oldFecGrp->size(); ++j){
+   for (unsigned j = 0; j < oldFecGrp->size(); ++j){
       CirGate* g = getGateById(oldFecGrp->at(j)/2);
       if (g == NULL) continue;
       IdList* fecGrp;
-      size_t phase = 0;
+      unsigned phase = 0;
       SimPValue temp(g->getSimOutput());
       SimPValue inv(~g->getSimOutput());
       FecNode gNode(temp, NULL), invNode(inv, NULL);
@@ -217,15 +216,15 @@ CirMgr::sortFecGrp(IdList* oldFecGrp, vector <IdList*>& newGrps)
 // When encounting space, see the following as another pattern
 // Use flag to detect space, true = there is space
 bool
-CirMgr::getPiSimFromFile(ifstream& patternFile, unsigned* v, size_t& count)
+CirMgr::getPiSimFromFile(ifstream& patternFile, unsigned* v, unsigned& count)
 {
    string temp;
    bool flag = false;
-   for (size_t i = 0; i < 32;){
+   for (unsigned i = 0; i < 32;){
       if (flag) flag = false;
       else { if (!getline(patternFile, temp)) return true; }
       if (temp.empty()) continue;
-      size_t n = 0;
+      unsigned n = 0;
       for (; n < temp.length(); ++n){
          if (n > _piList.size()){
             cerr << "Error: Pattern(" << temp << ") length(" << temp.length() << ")" 
@@ -255,16 +254,16 @@ CirMgr::getPiSimFromFile(ifstream& patternFile, unsigned* v, size_t& count)
 
 /*
 void 
-CirMgr::outputSimValueToFile(size_t outputBit)
+CirMgr::outputSimValueToFile(unsigned outputBit)
 {
    while (outputBit > 32) outputBit -= 32;
-   for (size_t n = 1; n < 33 && n <= outputBit; ++n){
-      for (size_t i = 0; i < _pis.size(); ++i){
+   for (unsigned n = 1; n < 33 && n <= outputBit; ++n){
+      for (unsigned i = 0; i < _pis.size(); ++i){
          bitset<32> simV(_pis[i]->getSimOutput());
          *_simLog << simV[n];
       }
       *_simLog << " ";
-      for (size_t i = 0; i < _pos.size(); ++i){
+      for (unsigned i = 0; i < _pos.size(); ++i){
          bitset<32> simV(_pos[i]->getSimOutput());
          *_simLog << simV[n];
       }
