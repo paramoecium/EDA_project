@@ -127,6 +127,38 @@ CirXnorGate::simulate(){
    _simVal = ~_simVal;
 }
 
+// generate CNF clause
+void 
+CirPiGate::genCNF(SatSolver& s){
+}
+void 
+CirBufGate::genCNF(SatSolver& s){
+}
+void 
+CirInvGate::genCNF(SatSolver& s){
+}
+void 
+CirAndGate::genCNF(SatSolver& s){
+   //for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
+      s.addAigCNF(_var, _faninGateList[0]->getVar(), true, 
+                 _faninGateList[1]->getVar(), true);
+}
+void 
+CirNandGate::genCNF(SatSolver& s){
+}
+void 
+CirOrGate::genCNF(SatSolver& s){
+}
+void 
+CirNorGate::genCNF(SatSolver& s){
+}
+void 
+CirXorGate::genCNF(SatSolver& s){
+}
+void 
+CirXnorGate::genCNF(SatSolver& s){
+}
+
 // print function
 void
 CirGate::printGate() const{
