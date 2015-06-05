@@ -37,6 +37,7 @@ class SatSolver
       // Return the Var ID of the new Var
       inline Var newVar() { _solver->newVar(); return _curVar++; }
       // fa/fb = true if it is inverted
+      /*
       void addAigCNF(Var vf, Var va, bool fa, Var vb, bool fb) {
          vec<Lit> lits;
          Lit lf = Lit(vf);
@@ -49,20 +50,87 @@ class SatSolver
          lits.push(~la); lits.push(~lb); lits.push(lf);
          _solver->addClause(lits); lits.clear();
       }
-      // fa/fb = true if it is inverted
-      void addXorCNF(Var vf, Var va, bool fa, Var vb, bool fb) {
+      */
+      /**************************************/
+      /************   my AddCNF   ***********/
+      /**************************************/
+
+      void addBufCNF(Var vf, Var va) {
          vec<Lit> lits;
          Lit lf = Lit(vf);
-         Lit la = fa? ~Lit(va): Lit(va);
-         Lit lb = fb? ~Lit(vb): Lit(vb);
-         lits.push(~la); lits.push( lb); lits.push( lf);
+         Lit la = Lit(va);
+         lits.push(~lf); lits.push(la);
          _solver->addClause(lits); lits.clear();
-         lits.push( la); lits.push(~lb); lits.push( lf);
+         lits.push(lf); lits.push(~la);
          _solver->addClause(lits); lits.clear();
-         lits.push( la); lits.push( lb); lits.push(~lf);
+      }
+      
+      void addInvCNF(Var vf, Var va) {
+         vec<Lit> lits;
+         Lit lf = Lit(vf);
+         Lit la = Lit(va);
+         lits.push(lf); lits.push(la);
          _solver->addClause(lits); lits.clear();
-         lits.push(~la); lits.push(~lb); lits.push(~lf);
+         lits.push(~lf); lits.push(~la);
          _solver->addClause(lits); lits.clear();
+      }
+
+      // And & Nand CNF
+      // vf = va & vb
+      // if Nand is true, this is NandGate
+      void addAndCNF(Var vf, const vector<Var>& faninVar, bool Nand) {
+         vec<Lit> lits, lastLits;
+         Lit lf = Nand? ~Lit(vf): Lit(vf);
+         for (unsigned i=0, m=faninVar.size(); i<m; ++i){
+            Lit la = Lit(faninVar[i]);
+            lits.push(la); lits.push(~lf); // (~vf+va)
+            _solver->addClause(lits); lits.clear();
+            lastLits.push(~la);
+         }
+         lastLits.push(lf); //(~va+~vb+vf)
+         _solver->addClause(lastLits); lastLits.clear();
+      }
+
+      // Or & Nor CNF
+      // vf = va + vb
+      // if Nand is true, this is NorGate
+      void addOrCNF(Var vf, const vector<Var>& faninVar, bool Nor) {
+         vec<Lit> lits, lastLits;
+         Lit lf = Nor? ~Lit(vf): Lit(vf);
+         for (unsigned i=0, m=faninVar.size(); i<m; ++i){
+            Lit la = Lit(faninVar[i]);
+            lits.push(~la); lits.push(lf); // (vf+~va)
+            _solver->addClause(lits); lits.clear();
+            lastLits.push(la);
+         }
+         lastLits.push(~lf); //(va+vb+~vf)
+         _solver->addClause(lastLits); lastLits.clear();
+      }
+
+      // fa/fb = true if it is inverted
+      // XOr & Xnor CNF
+      // vf = va xor vb
+      // if Xor is true, this is XnorGate
+      void addXorCNF(Var vf, const vector<Var>& faninVar, bool Xnor) {
+         vec<Lit> lits, lastLits;
+         Lit lf = Xnor? ~Lit(vf): Lit(vf);
+         lits.push(lf);
+         for (unsigned i=0, m=faninVar.size(); i<m; ++i){
+            Lit la = Lit(faninVar[i]);
+            lits.push(la);
+            lastLits.push(~la);
+         }
+
+         for (unsigned i=0, m=lits.size(); i<m; ++i){
+            lits[i] = ~lits[i];
+            // ~va + vb + vc + ... + vf
+            _solver->addClause(lits);
+            lits[i] = ~lits[i];
+         }
+         lits.clear();
+         lastLits.push(~lf);
+         // ~va + ~vb + ~vf
+         _solver->addClause(lastLits); lastLits.clear();
       }
 
       // For incremental proof, use "assumeSolve()"
