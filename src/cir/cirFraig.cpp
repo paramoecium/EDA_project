@@ -27,7 +27,7 @@ CirMgr::fraig()
       Var v = solver.newVar();
       _dfsList[i]->setVar(v);
    }
-   for (size_t i = 0; i < _dfsList.size(); ++i)
+   for (unsigned i = 0; i < _dfsList.size(); ++i)
       _dfsList[i]->genCNF(solver);
 
    //result = solveGateEqBySat(solver, g1, g2, inv);
@@ -43,12 +43,12 @@ CirMgr::genProofModel(SatSolver& s)
 {
    //Var zero = s.newVar();
    //getGate(0)->setVar(zero);
-   for (size_t i = 0, m=_dfsList.size(); i < m; ++i){
+   for (unsigned i = 0, m=_dfsList.size(); i < m; ++i){
       //if (_dfsOrder[i]->getId() == 0) continue;
       Var v = s.newVar();
       _dfsList[i]->setVar(v);
    }
-   for (size_t i = 0; i < _dfsList.size(); ++i){
+   for (unsigned i = 0; i < _dfsList.size(); ++i){
       //if (_dfsOrder[i]->getType() != AIG_GATE) continue;
       _dfsList[i]->genCNF(s);
 //      CirGate*& g = _dfsList[i];
