@@ -60,12 +60,12 @@ private:
    bool solveGateEqBySat(SatSolver&, CirGate*, CirGate*,bool);
 
    // Member function about simulation
-   void initFec(const unsigned*, const size_t&);
-   bool checkFec(const unsigned*, const size_t&);
+   void initFec(const unsigned*, const unsigned&);
+   bool checkFec(const unsigned*, const unsigned&);
    void sortFecGrp(IdList*, vector<IdList*>&);
    void simPi(const unsigned*);
-   bool getPiSimFromFile(ifstream&, unsigned*, size_t&);
-   //void outputSimValueToFile(size_t);
+   bool getPiSimFromFile(ifstream&, unsigned*, unsigned&);
+   //void outputSimValueToFile(unsigned);
 
 };
 
