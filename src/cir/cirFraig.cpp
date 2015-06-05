@@ -9,28 +9,26 @@
 #include <cassert>
 #include "cirMgr.h"
 #include "cirGate.h"
-#include "sat.h"
 #include "myHashMap.h"
 #include "util.h"
 
 
 using namespace std;
 
-// 1.Create a new dfslist save id in dfs order.
-//   Note that const 0 is the first one of the list.
-// 2.Optimize circuit usually to solve less SAT problem.
-// 3.Remember to check whether the gate of that id is exit or not.
-// 4.When every time get SAT, update dfs list (otherwise simulation will crash)
-//   do optimization and swepp again, and simultaion by the pattern from SatSolver.
-// 5.Whem get UNSAT, merge the gate.
-// 6.Final, remember to update all information about circuit.
 void
 CirMgr::fraig()
 {
    SatSolver solver;
    solver.initialize();
-   genProofModel(solver);
+   //genProofModel(solver);
 //   bool result, inv = false;
+   // generate proof model (set CNF clause)
+   for (unsigned i = 0, m=_dfsList.size(); i < m; ++i){
+      Var v = solver.newVar();
+      _dfsList[i]->setVar(v);
+   }
+   for (size_t i = 0; i < _dfsList.size(); ++i)
+      _dfsList[i]->genCNF(solver);
 
    //result = solveGateEqBySat(solver, g1, g2, inv);
 }
@@ -43,23 +41,22 @@ CirMgr::fraig()
 void
 CirMgr::genProofModel(SatSolver& s)
 {
-   /*
-   Var zero = s.newVar();
-   getGate(0)->setVar(zero);
-   for (size_t i = 0; i < _dfsOrder.size(); ++i){
-      if (_dfsOrder[i]->getId() == 0) continue;
+   //Var zero = s.newVar();
+   //getGate(0)->setVar(zero);
+   for (size_t i = 0, m=_dfsList.size(); i < m; ++i){
+      //if (_dfsOrder[i]->getId() == 0) continue;
       Var v = s.newVar();
-      _dfsOrder[i]->setVar(v);
+      _dfsList[i]->setVar(v);
    }
-   for (size_t i = 0; i < _dfsOrder.size(); ++i){
-      if (_dfsOrder[i]->getType() != AIG_GATE) continue;
-      CirGate*& g = _dfsOrder[i];
-      s.addAigCNF(g->getVar(), g->getFanin(0).gate()->getVar(), g->getFanin(0).isInv(), 
-                  g->getFanin(1).gate()->getVar(), g->getFanin(1).isInv());
+   for (size_t i = 0; i < _dfsList.size(); ++i){
+      //if (_dfsOrder[i]->getType() != AIG_GATE) continue;
+      _dfsList[i]->genCNF(s);
+//      CirGate*& g = _dfsList[i];
+//      s.addAigCNF(g->getVar(), g->getFanin(0).gate()->getVar(), g->getFanin(0).isInv(), 
+//                  g->getFanin(1).gate()->getVar(), g->getFanin(1).isInv());
    }
-   zero = s.newVar();
-   s.addAigCNF(getGate(0)->getVar(), zero, false, zero, true);
-   */
+   //zero = s.newVar();
+   //s.addAigCNF(getGate(0)->getVar(), zero, false, zero, true);
 }
 
 // Solve whether two gates are fuctionally equivalent
@@ -69,10 +66,8 @@ bool
 CirMgr::solveGateEqBySat(SatSolver& s, CirGate* g1, CirGate* g2, bool inverse){
   
    Var newV = s.newVar();
-   /*
    s.addXorCNF(newV, g1->getVar(), false, g2->getVar(), inverse);
    s.assumeRelease();  // Clear assumptions
    s.assumeProperty(newV, true);
-   */
    return !s.assumpSolve();
 }
