@@ -54,6 +54,13 @@ class SatSolver
       /**************************************/
       /************   my AddCNF   ***********/
       /**************************************/
+      void addConstCNF(Var vf) {
+         // CONST0
+         vec<Lit> lits;
+         Lit lf = ~Lit(vf);
+         lits.push(lf);
+         _solver->addClause(lits); lits.clear();
+      }
 
       void addBufCNF(Var vf, Var va) {
          vec<Lit> lits;

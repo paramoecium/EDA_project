@@ -129,6 +129,7 @@ CirXnorGate::simulate(){
 // generate CNF clause
 void 
 CirConstGate::genCNF(SatSolver& s){
+   s.addConstCNF(getVar());
 }
 
 void
