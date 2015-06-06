@@ -20,6 +20,7 @@ using namespace std;
 // Extern global variable defined in util.cpp
 extern RandomNumGen  rnGen;
 extern MyUsage       myUsage;
+extern unsigned getHashSize(unsigned);
 
 // Extern global function defined in util.cpp
 extern unsigned getHashSize(unsigned);

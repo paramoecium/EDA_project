@@ -47,10 +47,12 @@ public:
    virtual unsigned getSimOutput() const { return _simVal; }
    void setFecGrp(IdList* p) { _fecGrp=p; }
 
-   // SAT solver
+   // about solve SAT 
    virtual void genCNF(SatSolver&) = 0;
    void setVar(const Var& v) { _var=v; }
    Var getVar() const { return _var; }
+   void setEqGate(CirGate* g) { _eqGate = g; }
+   CirGate* getEqGate() const { return _eqGate; }
 
    // cut
    void resetCut(){ _cutIdx = 0; }
@@ -60,6 +62,7 @@ public:
 protected:
    // bosic information
    unsigned          _id;
+   CirGate*          _eqGate;
    string            _name;
    bool              _isPi, _isPo;
    

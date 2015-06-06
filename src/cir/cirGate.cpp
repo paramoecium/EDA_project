@@ -14,7 +14,8 @@ extern CirMgr* cirMgr;
 /**************************************/
 // constructor
 CirGate::CirGate(unsigned id, const string& name, const IdList& faninIdList): 
-   _id(id), _name(name), _isPi(false), _isPo(false),_faninIdList(faninIdList) {}
+   _id(id), _name(name), _isPi(false), _isPo(false),_faninIdList(faninIdList),
+   _dfsFlag(0), eqGate(NULL), _fecGrp(NULL) {}
 
 CirConstGate::CirConstGate(unsigned id, const string& name, const IdList& faninIdList): 
    CirGate(id, name, faninIdList) {}
@@ -127,29 +128,68 @@ CirXnorGate::simulate(){
 
 // generate CNF clause
 void 
+<<<<<<< HEAD
 CirConstGate::genCNF(SatSolver& s){}
+CirPiGate::genCNF(SatSolver& s){
+}
+
 void 
-CirPiGate::genCNF(SatSolver& s){}
+CirBufGate::genCNF(SatSolver& s){
+   s.addBufCNF(getVar(), _faninGateList[0]->getVar());
+}
+
 void 
-CirBufGate::genCNF(SatSolver& s){}
-void 
-CirNotGate::genCNF(SatSolver& s){}
+CirNotGate::genCNF(SatSolver& s){
+   s.addInvCNF(getVar(), _faninGateList[0]->getVar());
+}
+
 void 
 CirAndGate::genCNF(SatSolver& s){
-   //for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
-   s.addAigCNF(_var, _faninGateList[0]->getVar(), true, 
-                     _faninGateList[1]->getVar(), true);
+   vector<Var> faninVar;
+   for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
+      faninVar.push_back(_faninGateList[i]->getVar());
+   s.addAndCNF(_var, faninVar, false);
 }
+
 void 
-CirNandGate::genCNF(SatSolver& s){}
+CirNandGate::genCNF(SatSolver& s){
+   vector<Var> faninVar;
+   for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
+      faninVar.push_back(_faninGateList[i]->getVar());
+   s.addAndCNF(_var, faninVar, true);
+}
+
 void 
-CirOrGate::genCNF(SatSolver& s){}
+CirOrGate::genCNF(SatSolver& s){
+   vector<Var> faninVar;
+   for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
+      faninVar.push_back(_faninGateList[i]->getVar());
+   s.addOrCNF(_var, faninVar, false);
+}
+
 void 
-CirNorGate::genCNF(SatSolver& s){}
+CirNorGate::genCNF(SatSolver& s){
+   vector<Var> faninVar;
+   for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
+      faninVar.push_back(_faninGateList[i]->getVar());
+   s.addOrCNF(_var, faninVar, true);
+}
+
 void 
-CirXorGate::genCNF(SatSolver& s){}
+CirXorGate::genCNF(SatSolver& s){
+   vector<Var> faninVar;
+   for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
+      faninVar.push_back(_faninGateList[i]->getVar());
+   s.addXorCNF(_var, faninVar, false);
+}
+
 void 
-CirXnorGate::genCNF(SatSolver& s){}
+CirXnorGate::genCNF(SatSolver& s){
+   vector<Var> faninVar;
+   for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
+      faninVar.push_back(_faninGateList[i]->getVar());
+   s.addXorCNF(_var, faninVar, true);
+}
 
 // print function
 void
