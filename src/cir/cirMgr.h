@@ -65,6 +65,7 @@ private:
    void sortFecGrp(IdList*, vector<IdList*>&);
    void simPi(const unsigned*);
    bool getPiSimFromFile(ifstream&, unsigned*, unsigned&);
+   void doSimBySAT(const SatSolver&);
    //void outputSimValueToFile(unsigned);
 
 };

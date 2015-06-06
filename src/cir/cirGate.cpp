@@ -15,7 +15,8 @@ extern CirMgr* cirMgr;
 // constructor
 CirGate::CirGate(unsigned id, const string& name, 
                  const IdList& faninIdList): 
-   _id(id), _name(name), _faninIdList(faninIdList) {}
+   _id(id), _name(name), _faninIdList(faninIdList), _dfsFlag(0),
+   _eqGate(NULL), _fecGrp(NULL){}
 
 CirPiGate::CirPiGate(unsigned id, const string& name, 
                          const IdList& faninIdList): 

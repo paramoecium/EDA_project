@@ -15,7 +15,7 @@
 RandomNumGen  rnGen(0);  // use random seed = 0
 MyUsage       myUsage;
 
-size_t getHashSize(size_t s) {
+unsigned getHashSize(unsigned s) {
    if (s < 8) return 7;
    if (s < 16) return 13;
    if (s < 32) return 31;

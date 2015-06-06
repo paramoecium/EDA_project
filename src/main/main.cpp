@@ -27,6 +27,8 @@ main(int argc, char** argv){
       ifstream patternFile(fileName.c_str(), ios::in);
       cirMgr -> fileSim(patternFile);
       cirMgr -> printFECPairs();
+      cirMgr -> fraig();
+      cirMgr -> printFECPairs();
    }
    else {
       cerr << "Error: illegal number of argument (" << argc << ")!!\n";

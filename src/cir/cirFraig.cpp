@@ -20,17 +20,31 @@ CirMgr::fraig()
 {
    SatSolver solver;
    solver.initialize();
-   //genProofModel(solver);
-//   bool result, inv = false;
-   // generate proof model (set CNF clause)
-   for (unsigned i = 0, m=_dfsList.size(); i < m; ++i){
-      Var v = solver.newVar();
-      _dfsList[i]->setVar(v);
+   genProofModel(solver);
+   for (int i=0, m=_fecGrps.size(); i<m; ++i){
+      for (unsigned j=1, n=_fecGrps[i]->size(); j<n; ++j){
+         unsigned g1Num = _fecGrps[i]->at(0);
+         unsigned g2Num = _fecGrps[i]->at(j);
+         CirGate* g1 = getGateById(g1Num/2);
+         CirGate* g2 = getGateById(g2Num/2);
+         // already solve g1 == g2;
+         if (g2->getEqGate() == g1)
+            continue;
+         bool inv = ((g1Num%2) ^ (g2Num%2));
+         cout << "solving " << g1->getId() << " with " << g2->getId() << "......";
+         if (solveGateEqBySat(solver, g1, g2, inv)){
+            cout << "Equivalence!!" << endl;
+            g2->setEqGate(g1);
+         }
+         else{
+            cout << "UnEquivalence!!" << endl;
+            doSimBySAT(solver);
+            i = -1;
+            break;
+         }
+      }
+      // finish solving one group
    }
-   for (unsigned i = 0; i < _dfsList.size(); ++i)
-      _dfsList[i]->genCNF(solver);
-
-   //result = solveGateEqBySat(solver, g1, g2, inv);
 }
 
 /********************************************/
@@ -41,22 +55,12 @@ CirMgr::fraig()
 void
 CirMgr::genProofModel(SatSolver& s)
 {
-   //Var zero = s.newVar();
-   //getGate(0)->setVar(zero);
    for (unsigned i = 0, m=_dfsList.size(); i < m; ++i){
-      //if (_dfsOrder[i]->getId() == 0) continue;
       Var v = s.newVar();
       _dfsList[i]->setVar(v);
    }
-   for (unsigned i = 0; i < _dfsList.size(); ++i){
-      //if (_dfsOrder[i]->getType() != AIG_GATE) continue;
+   for (unsigned i = 0; i < _dfsList.size(); ++i)
       _dfsList[i]->genCNF(s);
-//      CirGate*& g = _dfsList[i];
-//      s.addAigCNF(g->getVar(), g->getFanin(0).gate()->getVar(), g->getFanin(0).isInv(), 
-//                  g->getFanin(1).gate()->getVar(), g->getFanin(1).isInv());
-   }
-   //zero = s.newVar();
-   //s.addAigCNF(getGate(0)->getVar(), zero, false, zero, true);
 }
 
 // Solve whether two gates are fuctionally equivalent
@@ -64,10 +68,25 @@ CirMgr::genProofModel(SatSolver& s)
 // else return false
 bool
 CirMgr::solveGateEqBySat(SatSolver& s, CirGate* g1, CirGate* g2, bool inverse){
-  
    Var newV = s.newVar();
-   s.addXorCNF(newV, g1->getVar(), false, g2->getVar(), inverse);
+   vector<Var> vars;
+   vars.push_back(g1->getVar());
+   vars.push_back(g2->getVar());
+   s.addXorCNF(newV, vars, inverse);
    s.assumeRelease();  // Clear assumptions
    s.assumeProperty(newV, true);
    return !s.assumpSolve();
+}
+
+void 
+CirMgr::doSimBySAT(const SatSolver& s)
+{
+   unsigned* simValue = new unsigned[_piList.size()];
+   for (unsigned i = 0, m=_piList.size(); i<m; ++i){
+      int temp = s.getValue(getGateById(_piList[i])->getVar());
+      if (temp == -1) temp = 0;
+      *(simValue + i) = temp;
+   }
+   checkFec(simValue, 32);
+   delete[] simValue;
 }
