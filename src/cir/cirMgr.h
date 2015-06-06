@@ -57,6 +57,7 @@ private:
    bool checkFec(const unsigned*, const unsigned&);
    void sortFecGrp(IdList*, vector<IdList*>&);
    void simPi(const unsigned*);
+   void doSimBySAT(const SatSolver&);
    bool getPiSimFromFile(ifstream&, unsigned*, unsigned&);
    //void outputSimValueToFile(unsigned);
    
@@ -72,16 +73,6 @@ private:
    map<string, unsigned>   _varMap;
    unsigned                _varNum;
    vector<IdList*>         _fecGrps; 
-
-
-   // Member function about simulation
-   void initFec(const unsigned*, const unsigned&);
-   bool checkFec(const unsigned*, const unsigned&);
-   void sortFecGrp(IdList*, vector<IdList*>&);
-   void simPi(const unsigned*);
-   bool getPiSimFromFile(ifstream&, unsigned*, unsigned&);
-   void doSimBySAT(const SatSolver&);
-   //void outputSimValueToFile(unsigned);
 
 };
 

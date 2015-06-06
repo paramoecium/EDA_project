@@ -62,7 +62,6 @@ public:
 protected:
    // bosic information
    unsigned          _id;
-   CirGate*          _eqGate;
    string            _name;
    bool              _isPi, _isPo;
    
@@ -74,6 +73,7 @@ protected:
    // simulation value
    unsigned          _simVal;
    IdList*           _fecGrp;
+   CirGate*          _eqGate;
    
    // SAT solver
    Var               _var;

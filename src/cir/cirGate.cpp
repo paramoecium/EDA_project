@@ -15,7 +15,7 @@ extern CirMgr* cirMgr;
 // constructor
 CirGate::CirGate(unsigned id, const string& name, const IdList& faninIdList): 
    _id(id), _name(name), _isPi(false), _isPo(false),_faninIdList(faninIdList),
-   _dfsFlag(0), eqGate(NULL), _fecGrp(NULL) {}
+   _fecGrp(NULL), _eqGate(NULL), _dfsFlag(0) {}
 
 CirConstGate::CirConstGate(unsigned id, const string& name, const IdList& faninIdList): 
    CirGate(id, name, faninIdList) {}
@@ -128,8 +128,10 @@ CirXnorGate::simulate(){
 
 // generate CNF clause
 void 
-<<<<<<< HEAD
-CirConstGate::genCNF(SatSolver& s){}
+CirConstGate::genCNF(SatSolver& s){
+}
+
+void
 CirPiGate::genCNF(SatSolver& s){
 }
 

@@ -29,18 +29,6 @@ static bool isValidGateTypeName(const string& name){
    return getGateTypeByName(name) != GATE_END;
 }
 
-static string getGateNameByType(GateType type){
-   if(type == GATE_BUF ) return "buf";
-   if(type == GATE_NOT ) return "not";
-   if(type == GATE_AND ) return "and";
-   if(type == GATE_NAND) return "nand";
-   if(type == GATE_OR  ) return "or";
-   if(type == GATE_NOR ) return "nor";
-   if(type == GATE_XOR ) return "xor";
-   if(type == GATE_XNOR) return "xnor";
-   return "";
-}
-
 static bool isConstant(const string& name){
    return (name == "1'b0" || name == "1'b1" ||
            name == "1'd0" || name == "1'd1" ||
@@ -186,7 +174,7 @@ CirMgr::writeCircuit(const string& filename, bool design) const {
       if(i > 0) fout << " , ";
       fout << _ioNameList[design][i];
    }
-   fout << ");" << endl;
+   fout << " );" << endl;
 
    // input
    tmp = false;
