@@ -10,12 +10,12 @@ using namespace std;
 CirMgr* cirMgr;
 unsigned dfsFlag = 0;
 
-/************************/
-/*   static functions   */
-/************************/
+/**************************************/
+/*   static variables and functions   */
+/**************************************/
 static GateType getGateTypeByName(const string& name){
    if(name == "buf" ) return GATE_BUF;
-   if(name == "inv" ) return GATE_INV;
+   if(name == "not" ) return GATE_NOT;
    if(name == "and" ) return GATE_AND;
    if(name == "nand") return GATE_NAND;
    if(name == "or"  ) return GATE_OR;
@@ -25,36 +25,76 @@ static GateType getGateTypeByName(const string& name){
    return GATE_END;
 }
 
+static bool isValidGateTypeName(const string& name){
+   return getGateTypeByName(name) != GATE_END;
+}
+
+static string getGateNameByType(GateType type){
+   if(type == GATE_BUF ) return "buf";
+   if(type == GATE_NOT ) return "not";
+   if(type == GATE_AND ) return "and";
+   if(type == GATE_NAND) return "nand";
+   if(type == GATE_OR  ) return "or";
+   if(type == GATE_NOR ) return "nor";
+   if(type == GATE_XOR ) return "xor";
+   if(type == GATE_XNOR) return "xnor";
+   return "";
+}
+
+static bool isConstant(const string& name){
+   return (name == "1'b0" || name == "1'b1" ||
+           name == "1'd0" || name == "1'd1" ||
+           name == "1'h0" || name == "1'h1" );
+}
+
+static string toConstant(const string& name){
+   assert(isConstant(name));
+   if(name[3] == '0') return "1'b0";
+   return "1'b1";
+}
+
 /*************************************/
 /*   class CirMgr public functions   */
 /*************************************/
-CirMgr::CirMgr(): _varNum(0) {}
+CirMgr::CirMgr(): _varNum(0) {
+   StrList faninList;
+   unsigned id;
+   createIdByName("1'b0");
+   createGate(GATE_CONST, "1'b0", faninList);
+   faninList.push_back("1'b0");
+   createIdByName("1'b1");
+   createGate(GATE_NOT, "1'b1", faninList);
+
+   id = getIdByName("1'b0");
+   getGateById(id)->setPi();
+   id = getIdByName("1'b1");
+   getGateById(id)->setPi();
+}  
 
 bool
 CirMgr::readCircuit(const string& filename, bool design) {
    // design = 0 -> design A
    // design = 1 -> design B (another circuit)
    ifstream fin(filename.c_str());
-   vector<char> sep, stop;
-   vector<string> tokens;
-   string extraName ="";
-   if (design) extraName = "_design_A";
-   else extraName = "_design_B";
+   if (!fin) {
+      cout<<"Cannot open design \""<<filename<<"\"!!"<<endl;
+      return false;
+   }
    
-   // initialize seperate char
+   vector<char> sep, stop; // seperating chars / stop chars
+   vector<string> tokens;  // parsed string tokens
+   string prefixName = (design? "design_A_" : "design_B_");
+   unsigned id;
+   
+   // initialize seperating chars
    sep.push_back(' ');
    sep.push_back('\t');
    sep.push_back('\n');
    sep.push_back('(');
    sep.push_back(')');
    sep.push_back(',');
-   // initialize stop char
+   // initialize stop chars
    stop.push_back(';');
-
-   if (!fin) {
-      cout<<"Cannot open design \""<<filename<<"\"!!"<<endl;
-      return false;
-   }
 
    while(!fin.eof()){
       parseStr(fin, sep, stop, tokens);
@@ -65,113 +105,161 @@ CirMgr::readCircuit(const string& filename, bool design) {
       */
       unsigned n = tokens.size();
       if(n == 0) continue;
-      if(tokens[0] == "module"){
 
+      // "module" <module name> <pin1 name> <pin2 name> ...
+      if(tokens[0] == "module"){
+         _ioNameList[design].clear();
+         for(unsigned i=2; i<n; ++i)
+            _ioNameList[design].push_back(tokens[i]);
       }
+      // "input" <in1 name> <in2 name> ...
       else if(tokens[0] == "input"){
          for(unsigned i=1; i<n; ++i){
             // One Pi connect to two Buf
             // Buf are input connect to design_A&B respectively
-            if (design)
+            if (design){
+               createIdByName(tokens[i]);
                createPI(tokens[i]);
-            vector<string> BufFanin;
-            BufFanin.push_back(tokens[i]);
-            tokens[i] += extraName;
-            createGate(GATE_BUF, tokens[i], BufFanin);
+               id = getIdByName(tokens[i]);
+               getGateById(id)->setPi();
+            }
+            vector<string> bufFanin;
+            bufFanin.push_back(tokens[i]);
+            createIdByName(prefixName + tokens[i]);
+            createGate(GATE_BUF, prefixName + tokens[i], bufFanin);
+            id = getIdByName(prefixName + tokens[i]);
+            getGateById(id)->setPi();
          }
       }
+      // "output" <out1 name> <out2 name> ...
       else if(tokens[0] == "output"){
          for(unsigned i=1; i<n; ++i){
-            tokens[i] += extraName;
-            createPO(tokens[i]);
+            createIdByName(prefixName + tokens[i]);
+            createPO(prefixName + tokens[i]);
          }
       }
+      // "wire" <w1 name> <w2 name> ...
       else if(tokens[0] == "wire"){
-         // neglect
+         for(unsigned i=1; i<n; ++i)
+            createIdByName(prefixName + tokens[i]);
       }
-      else if(tokens[0] == "buf" || tokens[0] == "inv"  ||
-              tokens[0] == "and" || tokens[0] == "nand" ||
-              tokens[0] == "or"  || tokens[0] == "nor"  ||
-              tokens[0] == "xor" || tokens[0] == "xnor" ){
+      // <gate type> <out name> <in1 name> <in2 name> ...
+      else if(isValidGateTypeName(tokens[0])){
          GateType type = getGateTypeByName(tokens[0]);
-         vector<string>::iterator st, ed;
-         st = tokens.begin(); ++st; ++st;
-         ed = tokens.end();
-         for (unsigned i=1, m=tokens.size(); i<m; ++i)
-            tokens[i] += extraName;
-         createGate(type, tokens[1], vector<string>(st, ed));
+         vector<string> faninList;
+         for (unsigned i=2, m=tokens.size(); i<m; ++i){
+            if(isConstant(tokens[i]))
+               faninList.push_back(toConstant(tokens[i]));
+            else
+               faninList.push_back(prefixName + tokens[i]);
+         }
+         createGate(type, prefixName + tokens[1], faninList);
+      }
+   }
+   fin.close();
+
+   // PO gate is created after "output" declaration,
+   // so setPo can only be done here
+   for(unsigned i=0, n=_poList.size(); i<n; ++i)
+      getGateById(_poList[i])->setPo();
+
+   return true;
+}
+
+bool 
+CirMgr::writeCircuit(const string& filename, bool design) const {
+   ofstream fout(filename.c_str());
+   if (!fout) {
+      cout<<"Cannot open design \""<<filename<<"\"!!"<<endl;
+      return false;
+   }
+
+   string prefixName = (design? "design_A_" : "design_B_");
+   unsigned prefixSize = prefixName.size();
+   CirGate* gate;
+   string gatePrefix, gateName;
+   bool tmp; // handle output comma
+   
+   // module(a, b, ...);
+   fout << "module ( ";
+   for(unsigned i=0, n=_ioNameList[design].size(); i<n; ++i){
+      if(i > 0) fout << " , ";
+      fout << _ioNameList[design][i];
+   }
+   fout << ");" << endl;
+
+   // input
+   tmp = false;
+   fout << "input ";
+   for(unsigned i=0, n=_piList.size(); i<n; ++i){
+      gate = getGateById(_piList[i]);
+      gateName = gate->getName();
+      if(tmp) fout << " , ";
+      else tmp = true;
+      fout << gateName;
+   }
+   fout << ";" << endl;
+
+   // output
+   tmp = false;
+   fout << "output ";
+   for(unsigned i=0, n=_poList.size(); i<n; ++i){
+      gate = getGateById(_poList[i]);
+      gatePrefix = gate->getName().substr(0, prefixSize);
+      gateName   = gate->getName().substr(prefixSize);
+      if(gatePrefix  == prefixName){
+         if(tmp) fout << " , ";
+         else tmp = true;
+         fout << gateName;
+      }
+   }
+   fout << ";" << endl;
+
+   // wire
+   tmp = false;
+   fout << "wire ";
+   for(unsigned i=0, n=_gateList.size(); i<n; ++i){
+      gate = _gateList[i];
+      if(gate == NULL || gate->isPi() || gate->isPo()) continue;
+      gatePrefix = gate->getName().substr(0, prefixSize);
+      gateName   = gate->getName().substr(prefixSize);
+      if(gatePrefix == prefixName){
+         if(tmp) fout << " , ";
+         else tmp = true;
+         fout << gateName;
+      }
+   }
+   fout << ";" << endl;
+
+   // gates
+   for(unsigned i=0, n=_gateList.size(); i<n; ++i){
+      gate = _gateList[i];
+      if(gate == NULL || gate->isPi()) continue;
+      gatePrefix = gate->getName().substr(0, prefixSize);
+      gateName   = gate->getName().substr(prefixSize);
+      if(gatePrefix == prefixName){
+         fout << gate->getGateType() << " ( " << gateName;
+         for(unsigned i=0, n=gate->getFaninSize(); i<n; ++i){
+            CirGate* in = gate->getFaninGate(i);
+            if(isConstant(in->getName()))
+               fout << " , " << in->getName();
+            else
+               fout << " , " << in->getName().substr(prefixSize);
+         }
+         fout << " );" << endl;
       }
    }
 
-   /*
-   string line, par;
-   vector<string> params;
-   //neglect the "module top" part
-   //neglect the "module top" part
-   while (line.substr(0,5) != "input") {
-      getline(fin, line);
-      cout<<"//"<<line<<"\n";
-   }
-   //parse "output" part
-   while (line.substr(0,6) != "output")  {
-      getline(fin, line);
-      cout<<"//"<<line<<"\n";
-   }
-   //parse "wire" part
-   while (line.substr(0,4) != "wire")  {
-      do {
-         getline(fin, line);
-         cout<<"//"<<line<<"\n";
-         size_t pos = 0;
-         while (pos!=string::npos) {
-            pos = myStrGetTok(line, par, pos," (),;\n");
-         }
-      } while (line.find(";")==string::npos);//may go wrong
-   }
-   //parse gate descriptions
-   params.clear();
-   par = "";
-   while (true) {
-      do {
-         getline(fin, line);
-         cout<<"\n//"<<line<<"\n";
-         if (line.substr(0,9) == "endmodule") break;
-         size_t pos = 0;
-         while (pos!=string::npos) {
-            pos = myStrGetTok(line, par, pos," (),;\n");
-            if(par.length()>0) cout<<par<<"_";
-            if(par.length()>0) params.push_back(par);
-         }
-      } while (line.find(";")==string::npos);//may go wrong
-      if (line.substr(0,9) == "endmodule") break;
-      params.pop_back();// ";"
-      GateType gatetype = GATE_END;
-      if(params[0].compare("buf")==0)
-         gatetype = GATE_BUF;
-      else if(params[0].compare("inv")==0)
-         gatetype = GATE_INV;
-      else if(params[0].compare("and")==0)
-         gatetype = GATE_AND;
-      else if(params[0].compare("nand")==0)
-         gatetype = GATE_NAND;
-      else if(params[0].compare("or")==0)
-         gatetype = GATE_OR;
-      else if(params[0].compare("nor")==0)
-         gatetype = GATE_NOR;
-      else if(params[0].compare("xor")==0)
-         gatetype = GATE_XOR;
-      else if(params[0].compare("xnor")==0)
-         gatetype = GATE_XNOR;
-      createGate(gatetype, params[1], vector<string>(++++(params.begin()), params.end()));
-      params.clear();
-      par = "";
-   }
-   */
+   // endmodule
+   fout << "endmodule" << endl;
+   
+   fout.close();
    return true;
 }
 
 void
 CirMgr::createPI(const string& name){
+   assert(checkNameDeclared(name));
    unsigned id = getIdByName(name);
    CirGate* gate = new CirPiGate(id, name, IdList());
    if(_gateList.size() <= id) _gateList.resize(id + 1);
@@ -181,27 +269,33 @@ CirMgr::createPI(const string& name){
 
 void
 CirMgr::createPO(const string& name){
+   assert(checkNameDeclared(name));
    unsigned id = getIdByName(name);
    _poList.push_back(id);
 }
 
 void
 CirMgr::createGate(GateType type, const string& name, const vector<string>& input){
-   CirGate* gate = NULL;
+   assert(checkNameDeclared(name));
    unsigned id = getIdByName(name);
+   CirGate* gate = NULL;
    IdList faninList;
+   
    for(unsigned i=0; i<input.size(); ++i)
       faninList.push_back(getIdByName(input[i]));
    
    switch(type){
+      case GATE_CONST:
+         gate = new CirConstGate(id, name, faninList);
+         break;
       case GATE_PI:
          gate = new CirPiGate(id, name, faninList);
          break;
       case GATE_BUF:
          gate = new CirBufGate(id, name, faninList);
          break;
-      case GATE_INV:
-         gate = new CirInvGate(id, name, faninList);
+      case GATE_NOT:
+         gate = new CirNotGate(id, name, faninList);
          break;
       case GATE_AND:
          gate = new CirAndGate(id, name, faninList);
@@ -223,7 +317,8 @@ CirMgr::createGate(GateType type, const string& name, const vector<string>& inpu
          break;
       default: break;
    }
-   if(_gateList.size() <= id) _gateList.resize(id+1);
+   assert(gate != 0);
+   assert(_gateList.size() > id);
    _gateList[id] = gate;
 }
 
@@ -231,8 +326,10 @@ void
 CirMgr::linkGates(){
    for(unsigned i=0, n=_gateList.size(); i<n; ++i){
       CirGate* gate = _gateList[i];
-      for(unsigned j=0, m=gate->getFaninNum(); j<m; ++j){
+      if(gate == 0) continue; // declared but not used
+      for(unsigned j=0, m=gate->getFaninSize(); j<m; ++j){
          CirGate* in = getGateById(gate->getFaninId(j));
+         assert(in != 0); // floating input
          gate->addFanin(in);
          in->addFanout(gate);
       }
@@ -257,9 +354,9 @@ CirMgr::printNetlist() const{
 void
 CirMgr::printFECPairs() const
 {
-   for (size_t i = 0; i < _fecGrps.size(); ++i){
+   for (unsigned i=0, n=_fecGrps.size(); i<n; ++i){
       cout << "[" << i << "] ";
-      for (size_t j = 0; j < _fecGrps[i]->size(); ++j){
+      for (unsigned j=0, m=_fecGrps[i]->size(); j<m; ++j){
          if (_fecGrps[i]->at(j)%2 != _fecGrps[i]->at(0)%2) cout << "!";
          cout << _fecGrps[i]->at(j)/2 << " ";
       }
@@ -270,10 +367,28 @@ CirMgr::printFECPairs() const
 /**************************************/
 /*   class CirMgr private functions   */
 /**************************************/
+bool
+CirMgr::checkNameDeclared(const string& name) const {
+   return _varMap.find(name) != _varMap.end();
+}
+
+void
+CirMgr::createIdByName(const string& name){
+   if(checkNameDeclared(name)){
+      cerr << "gate \"" << name << "\" is already declared!" << endl;
+      return;
+   }
+   _varMap[name] = _varNum++;
+   _gateList.push_back(NULL);
+   assert(_gateList.size() == _varNum);
+}
+
 unsigned
 CirMgr::getIdByName(const string& name){
-   if(_varMap.find(name) == _varMap.end())
-      _varMap[name] = _varNum++;
+   if(!checkNameDeclared(name)){
+      cerr << "gate \"" << name << "\" is not declared!" << endl;
+      return -1;
+   }
    return _varMap[name];
 }
 
@@ -282,7 +397,7 @@ void
 CirMgr::dfs(CirGate* gate){
    if(gate->isMark()) return;
    gate->mark();
-   for(unsigned i=0, n=gate->getFaninNum(); i<n; ++i)
+   for(unsigned i=0, n=gate->getFaninSize(); i<n; ++i)
       dfs(gate->getFaninGate(i));
    _dfsList.push_back(gate);
 }

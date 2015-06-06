@@ -18,16 +18,15 @@ class CirMgr
 public:
    CirMgr();
 
-   CirGate* getGateById(unsigned id) const {
-      return _gateList[id];
-   }
    // read input file
-   bool readCircuit(const string&, bool);
+   bool readCircuit (const string& filename, bool design);
+   bool writeCircuit(const string& filename, bool design) const ;
 
    // create gates
-   void createPI(const string&);
-   void createPO(const string&);
-   void createGate(GateType, const string&, const vector<string>&);
+   void createPI(const string& name);
+   void createPO(const string& name);
+   void createGate(GateType type, const string& name, const vector<string>& input);
+   
    // create netlist
    void linkGates();
    void buildDfsList();
@@ -42,11 +41,29 @@ public:
    void printNetlist() const;
    void printFECPairs() const;
    
+   CirGate* getGateById(unsigned id) const { return _gateList[id]; }
 
 private:
-   void dfs(CirGate*);
+   // gate id and name mapping
+   bool     checkNameDeclared(const string& name) const;
+   void     createIdByName(const string& name);
    unsigned getIdByName(const string& name);
+   
+   // used in buildDfsList
+   void dfs(CirGate* gate);
 
+   // Member function about simulation
+   void initFec(const unsigned*, const unsigned&);
+   bool checkFec(const unsigned*, const unsigned&);
+   void sortFecGrp(IdList*, vector<IdList*>&);
+   void simPi(const unsigned*);
+   bool getPiSimFromFile(ifstream&, unsigned*, unsigned&);
+   //void outputSimValueToFile(unsigned);
+   
+   void genProofModel(SatSolver&);
+   bool solveGateEqBySat(SatSolver&, CirGate*, CirGate*,bool);
+   
+   vector<string>          _ioNameList[2];
    GateList                _gateList;
    GateList                _dfsList;
    IdList                  _piList;
@@ -56,16 +73,7 @@ private:
    unsigned                _varNum;
    vector<IdList*>         _fecGrps; 
 
-   void genProofModel(SatSolver&);
-   bool solveGateEqBySat(SatSolver&, CirGate*, CirGate*,bool);
 
-   // Member function about simulation
-   void initFec(const unsigned*, const unsigned&);
-   bool checkFec(const unsigned*, const unsigned&);
-   void sortFecGrp(IdList*, vector<IdList*>&);
-   void simPi(const unsigned*);
-   bool getPiSimFromFile(ifstream&, unsigned*, unsigned&);
-   //void outputSimValueToFile(unsigned);
 
 };
 

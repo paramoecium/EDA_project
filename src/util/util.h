@@ -21,6 +21,9 @@ using namespace std;
 extern RandomNumGen  rnGen;
 extern MyUsage       myUsage;
 
+// Extern global function defined in util.cpp
+extern unsigned getHashSize(unsigned);
+
 // In myString.cpp
 extern int myStrNCmp(const string& s1, const string& s2, unsigned n);
 extern size_t myStrGetTok(const string& str, string& tok, size_t pos = 0,

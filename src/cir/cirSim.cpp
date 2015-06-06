@@ -179,8 +179,8 @@ CirMgr::checkFec(const unsigned *v, const unsigned& outputBit)
 void
 CirMgr::sortFecGrp(IdList* oldFecGrp, vector <IdList*>& newGrps)
 {
-   //HashMap<SimPValue, IdList*> fecHashMap(getHashSize(oldFecGrp->size()));
-   HashMap<SimPValue, IdList*> fecHashMap((oldFecGrp->size())/2);
+   HashMap<SimPValue, IdList*> fecHashMap(getHashSize(oldFecGrp->size()));
+   // HashMap<SimPValue, IdList*> fecHashMap((oldFecGrp->size())/2);
    for (unsigned j = 0; j < oldFecGrp->size(); ++j){
       CirGate* g = getGateById(oldFecGrp->at(j)/2);
       if (g == NULL) continue;

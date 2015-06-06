@@ -2,16 +2,19 @@
 #define _CIRDEF_H_
 
 #include <vector>
+#include <string>
 
 class CirGate;
 
-typedef std::vector<CirGate*> GateList;
-typedef std::vector<unsigned> IdList;
+typedef std::vector<CirGate*>    GateList;
+typedef std::vector<unsigned>    IdList;
+typedef std::vector<std::string> StrList;
 
 enum GateType{
+   GATE_CONST,
    GATE_PI,
    GATE_BUF, 
-   GATE_INV,
+   GATE_NOT,
    GATE_AND,
    GATE_NAND,
    GATE_OR,
