@@ -87,7 +87,7 @@ CirMgr::doSimBySAT(const SatSolver& s)
    for (unsigned i = 0, m=_piList.size(); i<m; ++i){
       int temp = s.getValue(getGateById(_piList[i])->getVar());
       if (temp == -1) temp = 0;
-      *(simValue + i) = temp;
+      simValue[i] = temp + (rand() & ~1u);
    }
    checkFec(simValue, 32);
    delete[] simValue;

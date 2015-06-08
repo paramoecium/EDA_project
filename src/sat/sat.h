@@ -60,7 +60,7 @@ class SatSolver
          lits.push(lf);
          _solver->addClause(lits); lits.clear();
       }
-
+     
       void addBufCNF(Var vf, Var va, bool Inv) {
          vec<Lit> lits;
          Lit lf = Inv? ~Lit(vf) : Lit(vf);
@@ -86,7 +86,7 @@ class SatSolver
          lastLits.push(lf); //(~va+~vb+vf)
          _solver->addClause(lastLits); lastLits.clear();
       }
-
+     
       // Or & Nor CNF
       // vf = va + vb
       // if Nand is true, this is NorGate
@@ -102,33 +102,41 @@ class SatSolver
          lastLits.push(~lf); //(va+vb+~vf)
          _solver->addClause(lastLits); lastLits.clear();
       }
-
+      
       // fa/fb = true if it is inverted
       // XOr & Xnor CNF
       // vf = va xor vb
       // if Xor is true, this is XnorGate
       void addXorCNF(Var vf, const vector<Var>& faninVar, bool Xnor) {
-         vec<Lit> lits, lastLits;
-         Lit lf = Xnor? ~Lit(vf): Lit(vf);
-         lits.push(lf);
-         for (unsigned i=0, m=faninVar.size(); i<m; ++i){
-            Lit la = Lit(faninVar[i]);
-            lits.push(la);
-            lastLits.push(~la);
-         }
+         int n = faninVar.size();
+         vec<Lit> lits, tmpLit;
+         Lit      la, lb, lf; // lf = la ^ lb
 
-         for (unsigned i=0, m=lits.size(); i<m; ++i){
-            lits[i] = ~lits[i];
-            // ~va + vb + vc + ... + vf
-            _solver->addClause(lits);
-            lits[i] = ~lits[i];
+         assert(n > 0);
+         // just in case
+         if(n == 1){
+            addBufCNF(vf, faninVar[0], Xnor);
+            return;
          }
-         lits.clear();
-         lastLits.push(~lf);
-         // ~va + ~vb + ~vf
-         _solver->addClause(lastLits); lastLits.clear();
+         tmpLit.push(Lit(faninVar[0]));
+         for(int i=1; i<n-1; ++i) tmpLit.push(Lit(newVar()));
+         tmpLit.push(Xnor? ~Lit(vf) : Lit(vf));
+         assert(tmpLit.size() == n);
+         for(int i=1; i<n; ++i){
+            la = tmpLit[i-1];
+            lb = Lit(faninVar[i]);
+            lf = tmpLit[i];
+            lits.push(~la); lits.push(lb); lits.push(lf);
+            _solver->addClause(lits); lits.clear();
+            lits.push(la); lits.push(~lb); lits.push(lf);
+            _solver->addClause(lits); lits.clear();
+            lits.push(la); lits.push(lb); lits.push(~lf);
+            _solver->addClause(lits); lits.clear();
+            lits.push(~la); lits.push(~lb); lits.push(~lf);
+            _solver->addClause(lits); lits.clear();
+         }
       }
-
+    
       // For incremental proof, use "assumeSolve()"
       void assumeRelease() { _assump.clear(); }
       void assumeProperty(Var prop, bool val) {
