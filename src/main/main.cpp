@@ -27,7 +27,7 @@ main(int argc, char** argv){
       ifstream patternFile(fileName.c_str(), ios::in);
       cirMgr -> fileSim(patternFile);
       cirMgr -> printFECPairs();
-      cirMgr -> fraig();
+      cirMgr -> cec();
       cirMgr -> printFECPairs();
       cirMgr -> writeCircuit(argv[3], true);
       cirMgr -> writeCircuit(argv[4], false);

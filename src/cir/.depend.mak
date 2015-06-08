@@ -1,4 +1,4 @@
-cirFraig.o: cirFraig.cpp cirMgr.h cirDef.h cirGate.h ../../include/sat.h \
+cirCEC.o: cirCEC.cpp cirMgr.h cirDef.h cirGate.h ../../include/sat.h \
  ../../include/Solver.h ../../include/SolverTypes.h \
  ../../include/Global.h ../../include/VarOrder.h ../../include/Heap.h \
  ../../include/Proof.h ../../include/File.h ../../include/myHashMap.h \

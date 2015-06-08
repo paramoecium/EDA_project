@@ -96,6 +96,7 @@ CirMgr::readCircuit(const string& filename, bool design) {
 
       // "module" <module name> <pin1 name> <pin2 name> ...
       if(tokens[0] == "module"){
+         _moduleName[design] = tokens[1];
          _ioNameList[design].clear();
          for(unsigned i=2; i<n; ++i)
             _ioNameList[design].push_back(tokens[i]);
@@ -168,8 +169,8 @@ CirMgr::writeCircuit(const string& filename, bool design) const {
    string gatePrefix, gateName;
    bool tmp; // handle output comma
    
-   // module(a, b, ...);
-   fout << "module ( ";
+   // module <module name> (a, b, ...);
+   fout << "module " << _moduleName[design] << " ( ";
    for(unsigned i=0, n=_ioNameList[design].size(); i<n; ++i){
       if(i > 0) fout << " , ";
       fout << _ioNameList[design][i];
@@ -180,6 +181,7 @@ CirMgr::writeCircuit(const string& filename, bool design) const {
    tmp = false;
    fout << "input ";
    for(unsigned i=0, n=_piList.size(); i<n; ++i){
+      // _piList is actually not the pi of the two circuits
       gate = getGateById(_piList[i]);
       gateName = gate->getName();
       if(tmp) fout << " , ";

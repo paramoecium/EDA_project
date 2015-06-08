@@ -1,7 +1,7 @@
 /****************************************************************************
-  FileName     [ cirFraig.cpp ]
+  FileName     [ cirCEC.cpp ]
   PackageName  [ cir ]
-  Synopsis     [ Define cir FRAIG functions ]
+  Synopsis     [ Define cir CEC functions ]
   Author       [ Chung-Yang (Ric) Huang ]
   Copyright    [ Copyleft(c) 2012-2014 LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
@@ -16,7 +16,7 @@
 using namespace std;
 
 void
-CirMgr::fraig()
+CirMgr::cec()
 {
    SatSolver solver;
    solver.initialize();
@@ -47,9 +47,9 @@ CirMgr::fraig()
    }
 }
 
-/********************************************/
-/*   Private member functions about fraig   */
-/********************************************/
+/************************************************/
+/*   Private member functions about solEqGate   */
+/************************************************/
 
 // convert all aigGates in dfs to clauses and put in satSolver
 void
@@ -89,4 +89,9 @@ CirMgr::doSimBySAT(const SatSolver& s)
    }
    checkFec(simValue, 32);
    delete[] simValue;
+}
+
+void
+CirMgr::solveBuf()
+{
 }

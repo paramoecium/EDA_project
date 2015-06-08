@@ -35,7 +35,9 @@ public:
    void randomSim();
    void fileSim(ifstream&);
    void genPattern(const string& pattern, const unsigned&);
-   void fraig();
+
+   // combinational equivelance checking
+   void cec();
 
    // circuit reporting
    void printNetlist() const;
@@ -61,9 +63,12 @@ private:
    bool getPiSimFromFile(ifstream&, unsigned*, unsigned&);
    //void outputSimValueToFile(unsigned);
    
+   // Member function about cec
    void genProofModel(SatSolver&);
    bool solveGateEqBySat(SatSolver&, CirGate*, CirGate*,bool);
-   
+   void solveBuf();
+
+   string                  _moduleName[2];
    vector<string>          _ioNameList[2];
    GateList                _gateList;
    GateList                _dfsList;
