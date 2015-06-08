@@ -18,6 +18,7 @@ using namespace std;
 void
 CirMgr::cec()
 {
+   solveBuf();
    SatSolver solver;
    solver.initialize();
    genProofModel(solver);
@@ -94,4 +95,11 @@ CirMgr::doSimBySAT(const SatSolver& s)
 void
 CirMgr::solveBuf()
 {
+   for (unsigned i=0, m=_dfsList.size(); i<m; ++i){
+      string type = _dfsList[i]->getGateType();
+      if (type=="buf" || type=="not"){
+         CirGate* fanin = _dfsList[i]->getFaninGate(0);
+         _dfsList[i]->setEqGate(fanin);
+      }
+   }
 }
