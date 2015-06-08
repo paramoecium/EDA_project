@@ -6,15 +6,6 @@ using namespace std;
 
 int
 main(int argc, char** argv){
-   /*
-    string file;
-    cin >> file;
-    CirMgr* cirMgr = new CirMgr();
-    cirMgr->readCircuit(file);
-    cirMgr->linkGates();
-    cirMgr->buildDfsList();
-    cirMgr->printNetlist();
-    */
    if (argc == 5) {  // <program> <in_1.v> <in_2.v> <out1.v> <out2.v>
       CirMgr* cirMgr = new CirMgr();
       string fileName = "testPattern";
@@ -23,7 +14,7 @@ main(int argc, char** argv){
       cirMgr -> linkGates();
       cirMgr -> buildDfsList();
       // cirMgr -> printNetlist();
-      cirMgr -> genPattern(fileName, 32);
+      cirMgr -> genPattern(fileName);
       ifstream patternFile(fileName.c_str(), ios::in);
       cirMgr -> fileSim(patternFile);
       cirMgr -> printFECPairs();

@@ -3,7 +3,7 @@
   PackageName  [ util ]
   Synopsis     [ Define Hash and Cache ADT ]
   Author       [ Chung-Yang (Ric) Huang ]
-  Copyright    [ Copyleft(c) 2009-2010 LaDs(III), GIEE, NTU, Taiwan ]
+  Copyright    [ Copyleft(c) 2009 LaDs(III), GIEE, NTU, Taiwan ]
 ****************************************************************************/
 
 #ifndef MY_HASH_H
@@ -13,7 +13,7 @@
 
 using namespace std;
 
-extern unsigned getHashSize(unsigned s);
+class BddNodeInt;
 
 //--------------------
 // Define Hash classes
@@ -24,11 +24,11 @@ extern unsigned getHashSize(unsigned s);
 // class HashKey
 // {
 // public:
-//    HashKey() {}
+//    BddHashKey() {}
 // 
 //    size_t operator() () const { return 0; }
 // 
-//    bool operator == (const HashKey& k) const { return true; }
+//    bool operator == (const HashKey& k) { return true; }
 // 
 // private:
 // };
@@ -65,6 +65,7 @@ public:
       : _hash(i._hash), _bId(i._bId), _bnId(i._bnId) {}
       ~iterator() {} // Should NOT delete HashData
 
+      // TODO: implement these overloaded operators
       const HashNode& operator * () const { return (*_hash)[_bId][_bnId]; }
       HashNode& operator * () { return (*_hash)[_bId][_bnId]; }
       iterator& operator ++ () {
@@ -108,22 +109,15 @@ public:
    //
    // Point to the first valid data
    iterator begin() const {
-      if (_buckets == 0) return end();
-/*
       size_t i = 0;
+      if (_buckets == 0) return end();
       while (_buckets[i].empty()) ++i;
-      if (i == _numBuckets) return end();
       return iterator(const_cast<Hash<HashKey, HashData>*>(this), i, 0);
-*/
-      for (size_t i = 0; i < _numBuckets; ++i)
-         if (!_buckets[i].empty())
-            return iterator(const_cast<Hash<HashKey, HashData>*>(this), i, 0);
-      return end();
    }
    // Pass the end
    iterator end() const {
       return iterator(const_cast<Hash<HashKey, HashData>*>(this),
-             _numBuckets, 0);
+             _numBuckets, 0); 
    }
    // return true if no valid data
    bool empty() const {
@@ -235,7 +229,7 @@ public:
    //
    // Initialize _cache with size s
    void init(size_t s) { reset(); _size = s; _cache = new CacheNode[s]; }
-   void reset() {  _size = 0; if (_cache) { delete [] _cache; _cache = 0; } }
+   void reset() { _size = 0; if (_cache) { delete [] _cache; _cache = 0; } }
 
    size_t size() const { return _size; }
 

@@ -1,5 +1,5 @@
 REFPKGS  = 
-SRCPKGS  = cir sat util
+SRCPKGS  = cir bdd sat util
 LIBPKGS  = $(REFPKGS) $(SRCPKGS)
 MAIN     = main
 

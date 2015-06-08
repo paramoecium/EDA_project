@@ -8,6 +8,7 @@ using namespace std;
 /*   extern variables   */
 /************************/
 extern CirMgr* cirMgr;
+extern BddMgr* bddMgr;
 
 /**************************************/
 /*   class CirGate public functions   */
@@ -192,6 +193,40 @@ CirXnorGate::genCNF(SatSolver& s){
    for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
       faninVar.push_back(_faninGateList[i]->getVar());
    s.addXorCNF(_var, faninVar, true);
+}
+
+void
+CirGate::setGateFunc(BddNode func){
+   mark();
+   _tmpFunc = func;
+}
+
+// genCutList
+void
+CirGate::genCutList(){
+   // TODO: need to fix this for more than two inputs
+   _cutList.genCutList(_faninGateList[0]->getCutList(),
+                       _faninGateList[1]->getCutList(), _id);
+}
+
+void
+CirConstGate::genCutList(){
+   _cutList.genCutList(_id);
+}
+
+// genGateFunc
+void
+CirGate::genGateFunc(){
+   if(isMark()) return;
+   mark();
+   _tmpFunc = bddMgr->getSupport(0);
+}
+
+void
+CirConstGate::genGateFunc(){
+   if(isMark()) return;
+   mark();
+   _tmpFunc = bddMgr->getSupport(0); 
 }
 
 // print function

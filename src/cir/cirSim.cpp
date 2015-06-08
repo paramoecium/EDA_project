@@ -75,7 +75,7 @@ CirMgr::randomSim()
    */
 
 void 
-CirMgr::genPattern(const string& fileName, const unsigned& k)
+CirMgr::genPattern(const string& fileName)
 {
    ofstream patternFile;
    patternFile.open(fileName.c_str(),ios::out);
@@ -83,6 +83,8 @@ CirMgr::genPattern(const string& fileName, const unsigned& k)
       cout << "Could not construct file " << fileName << endl;
       return;
    }
+
+   unsigned k = getHashSize(_dfsList.size()) & (~31u); 
 
    for (unsigned i=0; i<k; ++i){
       for (unsigned j=0, m=_piList.size(); j<m; ++j)

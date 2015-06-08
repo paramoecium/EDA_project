@@ -34,7 +34,7 @@ public:
    // Member functions about simulation
    void randomSim();
    void fileSim(ifstream&);
-   void genPattern(const string& pattern, const unsigned&);
+   void genPattern(const string& pattern);
 
    // combinational equivelance checking
    void cec();
