@@ -54,17 +54,16 @@ class SatSolver
       /**************************************/
       /************   my AddCNF   ***********/
       /**************************************/
-      void addConstCNF(Var vf) {
-         // CONST0
+      void addConst0CNF(Var vf, bool Const1) {
          vec<Lit> lits;
-         Lit lf = ~Lit(vf);
+         Lit lf = Const1? Lit(vf) : ~Lit(vf);
          lits.push(lf);
          _solver->addClause(lits); lits.clear();
       }
 
-      void addBufCNF(Var vf, Var va) {
+      void addBufCNF(Var vf, Var va, bool Inv) {
          vec<Lit> lits;
-         Lit lf = Lit(vf);
+         Lit lf = Inv? ~Lit(vf) : Lit(vf);
          Lit la = Lit(va);
          lits.push(~lf); lits.push(la);
          _solver->addClause(lits); lits.clear();
@@ -72,16 +71,6 @@ class SatSolver
          _solver->addClause(lits); lits.clear();
       }
       
-      void addInvCNF(Var vf, Var va) {
-         vec<Lit> lits;
-         Lit lf = Lit(vf);
-         Lit la = Lit(va);
-         lits.push(lf); lits.push(la);
-         _solver->addClause(lits); lits.clear();
-         lits.push(~lf); lits.push(~la);
-         _solver->addClause(lits); lits.clear();
-      }
-
       // And & Nand CNF
       // vf = va & vb
       // if Nand is true, this is NandGate

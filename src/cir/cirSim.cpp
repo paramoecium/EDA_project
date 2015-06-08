@@ -84,7 +84,7 @@ CirMgr::genPattern(const string& fileName)
       return;
    }
 
-   unsigned k = getHashSize(_dfsList.size()) & (~31u); 
+   unsigned k = (getHashSize(_dfsList.size()) & (~31u)) + 32; 
 
    for (unsigned i=0; i<k; ++i){
       for (unsigned j=0, m=_piList.size(); j<m; ++j)
@@ -133,7 +133,7 @@ CirMgr::initFec(const unsigned* v, const unsigned& outputBit)
    }
    for (unsigned i=0, m=_dfsList.size(); i < m; ++i)
       _dfsList[i]->simulate();
-   fec.push_back(0);
+   // fec.push_back(0);
    for (unsigned i = 0, m=_dfsList.size(); i < m; ++i){
       fec.push_back(2*_dfsList[i]->getId());
    }

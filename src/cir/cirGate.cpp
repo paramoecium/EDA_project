@@ -14,43 +14,31 @@ extern BddMgr* bddMgr;
 /*   class CirGate public functions   */
 /**************************************/
 // constructor
-CirGate::CirGate(unsigned id, const string& name, const IdList& faninIdList): 
-   _id(id), _name(name), _isPi(false), _isPo(false),_faninIdList(faninIdList),
-   _fecGrp(NULL), _eqGate(NULL), _dfsFlag(0) {}
+CirGate::CirGate(unsigned id, const string& name, const IdList& faninIdList, bool inv): 
+   _id(id), _name(name), _isPi(false), _isPo(false), _inv(inv),
+   _faninIdList(faninIdList), _fecGrp(NULL), _eqGate(NULL), _dfsFlag(0) {}
 
-CirConstGate::CirConstGate(unsigned id, const string& name, const IdList& faninIdList): 
-   CirGate(id, name, faninIdList) {}
+CirConst0Gate::CirConst0Gate(unsigned id, const string& name, const IdList& faninIdList, bool inv): 
+   CirGate(id, name, faninIdList, inv) {}
 
-CirPiGate::CirPiGate      (unsigned id, const string& name, const IdList& faninIdList): 
-   CirGate(id, name, faninIdList) {}
+CirPiGate::CirPiGate(unsigned id, const string& name, const IdList& faninIdList): 
+   CirGate(id, name, faninIdList, false) {}
 
-CirBufGate::CirBufGate    (unsigned id, const string& name, const IdList& faninIdList): 
-   CirGate(id, name, faninIdList) {}
+CirBufGate::CirBufGate(unsigned id, const string& name, const IdList& faninIdList, bool inv): 
+   CirGate(id, name, faninIdList, inv) {}
 
-CirNotGate::CirNotGate    (unsigned id, const string& name, const IdList& faninIdList): 
-   CirGate(id, name, faninIdList) {}
+CirAndGate::CirAndGate(unsigned id, const string& name, const IdList& faninIdList, bool inv): 
+   CirGate(id, name, faninIdList, inv) {}
 
-CirAndGate::CirAndGate    (unsigned id, const string& name, const IdList& faninIdList): 
-   CirGate(id, name, faninIdList) {}
+CirOrGate::CirOrGate(unsigned id, const string& name, const IdList& faninIdList, bool inv): 
+   CirGate(id, name, faninIdList, inv) {}
 
-CirNandGate::CirNandGate  (unsigned id, const string& name, const IdList& faninIdList): 
-   CirGate(id, name, faninIdList) {}
-
-CirOrGate::CirOrGate      (unsigned id, const string& name, const IdList& faninIdList): 
-   CirGate(id, name, faninIdList) {}
-
-CirNorGate::CirNorGate    (unsigned id, const string& name, const IdList& faninIdList): 
-   CirGate(id, name, faninIdList) {}
-
-CirXorGate::CirXorGate    (unsigned id, const string& name, const IdList& faninIdList): 
-   CirGate(id, name, faninIdList) {}
-
-CirXnorGate::CirXnorGate  (unsigned id, const string& name, const IdList& faninIdList): 
-   CirGate(id, name, faninIdList) {}
+CirXorGate::CirXorGate(unsigned id, const string& name, const IdList& faninIdList, bool inv): 
+   CirGate(id, name, faninIdList, inv) {}
 
 // simulation
 void
-CirConstGate::simulate(){
+CirConst0Gate::simulate(){
    _simVal = 0u;
 }
 
@@ -63,12 +51,7 @@ void
 CirBufGate::simulate(){ 
    CirGate* gate = _faninGateList[0];
    _simVal = gate->getSimOutput(); 
-}
-
-void 
-CirNotGate::simulate(){ 
-   CirGate* gate = _faninGateList[0];
-   _simVal = ~gate->getSimOutput(); 
+   if(isInv()) _simVal = ~_simVal;
 }
 
 void 
@@ -78,15 +61,7 @@ CirAndGate::simulate(){
       CirGate* gate = _faninGateList[i];
       _simVal &= gate->getSimOutput(); 
    }
-}
-void 
-CirNandGate::simulate(){ 
-   _simVal = ~0u;
-   for(unsigned i=0, n=_faninGateList.size(); i<n; ++i){
-      CirGate* gate = _faninGateList[i];
-      _simVal &= gate->getSimOutput();
-   }
-   _simVal = ~_simVal;
+   if(isInv()) _simVal = ~_simVal;
 }
 
 void 
@@ -96,16 +71,7 @@ CirOrGate::simulate(){
       CirGate* gate = _faninGateList[i];
       _simVal |= gate->getSimOutput(); 
    }
-}
-
-void 
-CirNorGate::simulate(){ 
-   _simVal = 0u;
-   for(unsigned i=0, n=_faninGateList.size(); i<n; ++i){
-      CirGate* gate = _faninGateList[i];
-      _simVal |= gate->getSimOutput(); 
-   }
-   _simVal = ~_simVal;
+   if(isInv()) _simVal = ~_simVal;
 }
 
 void 
@@ -115,22 +81,13 @@ CirXorGate::simulate(){
       CirGate* gate = _faninGateList[i];
       _simVal ^= gate->getSimOutput();
    }
-}
-
-void 
-CirXnorGate::simulate(){ 
-   _simVal = 0u;
-   for(unsigned i=0, n=_faninGateList.size(); i<n; ++i){
-      CirGate* gate = _faninGateList[i];
-      _simVal ^= gate->getSimOutput(); 
-   }
-   _simVal = ~_simVal;
+   if(isInv()) _simVal = ~_simVal;
 }
 
 // generate CNF clause
 void 
-CirConstGate::genCNF(SatSolver& s){
-   s.addConstCNF(getVar());
+CirConst0Gate::genCNF(SatSolver& s){
+   s.addConst0CNF(getVar(), isInv());
 }
 
 void
@@ -139,12 +96,7 @@ CirPiGate::genCNF(SatSolver& s){
 
 void 
 CirBufGate::genCNF(SatSolver& s){
-   s.addBufCNF(getVar(), _faninGateList[0]->getVar());
-}
-
-void 
-CirNotGate::genCNF(SatSolver& s){
-   s.addInvCNF(getVar(), _faninGateList[0]->getVar());
+   s.addBufCNF(getVar(), _faninGateList[0]->getVar(), isInv());
 }
 
 void 
@@ -152,15 +104,7 @@ CirAndGate::genCNF(SatSolver& s){
    vector<Var> faninVar;
    for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
       faninVar.push_back(_faninGateList[i]->getVar());
-   s.addAndCNF(_var, faninVar, false);
-}
-
-void 
-CirNandGate::genCNF(SatSolver& s){
-   vector<Var> faninVar;
-   for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
-      faninVar.push_back(_faninGateList[i]->getVar());
-   s.addAndCNF(_var, faninVar, true);
+   s.addAndCNF(getVar(), faninVar, isInv());
 }
 
 void 
@@ -168,15 +112,7 @@ CirOrGate::genCNF(SatSolver& s){
    vector<Var> faninVar;
    for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
       faninVar.push_back(_faninGateList[i]->getVar());
-   s.addOrCNF(_var, faninVar, false);
-}
-
-void 
-CirNorGate::genCNF(SatSolver& s){
-   vector<Var> faninVar;
-   for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
-      faninVar.push_back(_faninGateList[i]->getVar());
-   s.addOrCNF(_var, faninVar, true);
+   s.addOrCNF(getVar(), faninVar, isInv());
 }
 
 void 
@@ -184,15 +120,7 @@ CirXorGate::genCNF(SatSolver& s){
    vector<Var> faninVar;
    for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
       faninVar.push_back(_faninGateList[i]->getVar());
-   s.addXorCNF(_var, faninVar, false);
-}
-
-void 
-CirXnorGate::genCNF(SatSolver& s){
-   vector<Var> faninVar;
-   for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
-      faninVar.push_back(_faninGateList[i]->getVar());
-   s.addXorCNF(_var, faninVar, true);
+   s.addXorCNF(getVar(), faninVar, isInv());
 }
 
 void
@@ -210,7 +138,7 @@ CirGate::genCutList(){
 }
 
 void
-CirConstGate::genCutList(){
+CirConst0Gate::genCutList(){
    _cutList.genCutList(_id);
 }
 
@@ -223,7 +151,7 @@ CirGate::genGateFunc(){
 }
 
 void
-CirConstGate::genGateFunc(){
+CirConst0Gate::genGateFunc(){
    if(isMark()) return;
    mark();
    _tmpFunc = bddMgr->getSupport(0); 

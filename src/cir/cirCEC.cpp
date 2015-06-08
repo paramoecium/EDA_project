@@ -28,6 +28,7 @@ CirMgr::cec()
          unsigned g2Num = _fecGrps[i]->at(j);
          CirGate* g1 = getGateById(g1Num/2);
          CirGate* g2 = getGateById(g2Num/2);
+         assert(g1 != 0 && g2 != 0);
          // already solve g1 == g2;
          if (g2->getEqGate() == g1)
             continue;
@@ -56,11 +57,11 @@ CirMgr::cec()
 void
 CirMgr::genProofModel(SatSolver& s)
 {
-   for (unsigned i = 0, m=_dfsList.size(); i < m; ++i){
+   for (unsigned i=0, m=_dfsList.size(); i<m; ++i){
       Var v = s.newVar();
       _dfsList[i]->setVar(v);
    }
-   for (unsigned i = 0; i < _dfsList.size(); ++i)
+   for (unsigned i=0, m=_dfsList.size(); i<m; ++i)
       _dfsList[i]->genCNF(s);
 }
 

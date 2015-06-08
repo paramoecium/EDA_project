@@ -45,13 +45,11 @@ static string toConstant(const string& name){
 /*   class CirMgr public functions   */
 /*************************************/
 CirMgr::CirMgr(): _varNum(0) {
-   StrList faninList;
    unsigned id;
    createIdByName("1'b0");
-   createGate(GATE_CONST, "1'b0", faninList);
-   faninList.push_back("1'b0");
+   createGate(GATE_CONST0, "1'b0", StrList());
    createIdByName("1'b1");
-   createGate(GATE_NOT, "1'b1", faninList);
+   createGate(GATE_CONST1, "1'b1", StrList());
 
    id = getIdByName("1'b0");
    getGateById(id)->setPi();
@@ -275,35 +273,38 @@ CirMgr::createGate(GateType type, const string& name, const vector<string>& inpu
       faninList.push_back(getIdByName(input[i]));
    
    switch(type){
-      case GATE_CONST:
-         gate = new CirConstGate(id, name, faninList);
+      case GATE_CONST0:
+         gate = new CirConst0Gate(id, name, faninList, false);
+         break;
+      case GATE_CONST1:
+         gate = new CirConst0Gate(id, name, faninList, true);
          break;
       case GATE_PI:
          gate = new CirPiGate(id, name, faninList);
          break;
       case GATE_BUF:
-         gate = new CirBufGate(id, name, faninList);
+         gate = new CirBufGate(id, name, faninList, false);
          break;
       case GATE_NOT:
-         gate = new CirNotGate(id, name, faninList);
+         gate = new CirBufGate(id, name, faninList, true);
          break;
       case GATE_AND:
-         gate = new CirAndGate(id, name, faninList);
+         gate = new CirAndGate(id, name, faninList, false);
          break;
       case GATE_NAND:
-         gate = new CirNandGate(id, name, faninList);
+         gate = new CirAndGate(id, name, faninList, true);
          break;
       case GATE_OR:
-         gate = new CirOrGate(id, name, faninList);
+         gate = new CirOrGate(id, name, faninList, false);
          break;
       case GATE_NOR:
-         gate = new CirNorGate(id, name, faninList);
+         gate = new CirOrGate(id, name, faninList, true);
          break;
       case GATE_XOR:
-         gate = new CirXorGate(id, name, faninList);
+         gate = new CirXorGate(id, name, faninList, false);
          break;
       case GATE_XNOR:
-         gate = new CirXnorGate(id, name, faninList);
+         gate = new CirXorGate(id, name, faninList, true);
          break;
       default: break;
    }
@@ -344,11 +345,14 @@ CirMgr::printNetlist() const{
 void
 CirMgr::printFECPairs() const
 {
+   unsigned head, current;
    for (unsigned i=0, n=_fecGrps.size(); i<n; ++i){
       cout << "[" << i << "] ";
+      head = _fecGrps[i]->at(0);
       for (unsigned j=0, m=_fecGrps[i]->size(); j<m; ++j){
-         if (_fecGrps[i]->at(j)%2 != _fecGrps[i]->at(0)%2) cout << "!";
-         cout << _fecGrps[i]->at(j)/2 << " ";
+         current = _fecGrps[i]->at(j);
+         if (current%2 != head%2) cout << "!";
+         cout << current/2 << "(" << getGateById(current/2)->getName() << ") ";
       }
       cout << endl;
    }

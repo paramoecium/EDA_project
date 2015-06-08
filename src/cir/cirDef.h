@@ -11,7 +11,8 @@ typedef std::vector<unsigned>    IdList;
 typedef std::vector<std::string> StrList;
 
 enum GateType{
-   GATE_CONST,
+   GATE_CONST0,
+   GATE_CONST1,
    GATE_PI,
    GATE_BUF, 
    GATE_NOT,

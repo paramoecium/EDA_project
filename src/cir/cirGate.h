@@ -18,17 +18,18 @@ extern unsigned dfsFlag;
 class CirGate
 {
 public:
-   CirGate(unsigned, const string&, const IdList&); 
+   CirGate(unsigned id, const string& name, const IdList& faninIdList, bool inv); 
 
    // basic gate information
    unsigned getId() const { return _id; }
    string getName() const { return _name; }
    void setPi(){ _isPi = true; }
    void setPo(){ _isPo = true; }
-   bool isPi() const { return _isPi; }
-   bool isPo() const { return _isPo; }
-   unsigned getFaninSize() const { return _faninIdList.size(); }
-   unsigned getFaninId(unsigned idx) const { return _faninIdList[idx]; }
+   bool isPi()  const { return _isPi; }
+   bool isPo()  const { return _isPo; }
+   bool isInv() const { return _inv;  }
+   unsigned getFaninSize()             const { return _faninIdList.size(); }
+   unsigned getFaninId  (unsigned idx) const { return _faninIdList[idx]; }
    CirGate* getFaninGate(unsigned idx) const { return _faninGateList[idx]; }
    
    virtual string getGateType() const = 0;
@@ -45,16 +46,16 @@ public:
    void addFanout(CirGate* g) { _fanoutGateList.push_back(g); }
 
    // simulation
-   virtual void simulate() = 0;
+   virtual void     simulate() = 0;
    virtual unsigned getSimOutput() const { return _simVal; }
-   void setFecGrp(IdList* p) { _fecGrp=p; }
+   void             setFecGrp(IdList* p) { _fecGrp=p; }
 
    // about solve SAT 
    virtual void genCNF(SatSolver&) = 0;
-   void setVar(const Var& v) { _var=v; }
-   Var getVar() const { return _var; }
-   void setEqGate(CirGate* g) { _eqGate = g; }
-   CirGate* getEqGate() const { return _eqGate; }
+   void         setVar(Var v) { _var=v; }
+   Var          getVar() const { return _var; }
+   void         setEqGate(CirGate* g) { _eqGate = g; }
+   CirGate*     getEqGate() const { return _eqGate; }
 
    // Methods about cut
 	virtual void genCutList();
@@ -68,6 +69,7 @@ protected:
    unsigned          _id;
    string            _name;
    bool              _isPi, _isPo;
+   bool              _inv;
    
    // fanin and fanout
    IdList            _faninIdList;
@@ -85,17 +87,19 @@ protected:
    // cut
    CirCutList        _cutList;
    BddNode           _tmpFunc;
+
+   // dfs
    mutable unsigned  _dfsFlag;
 };
 
 /******************************************/
 /*   inherited class from class CirGate   */
 /******************************************/
-class CirConstGate: public CirGate
+class CirConst0Gate: public CirGate
 {
 public:
-   CirConstGate(unsigned, const string&, const IdList&);
-   string getGateType() const { return "const"; }
+   CirConst0Gate(unsigned, const string&, const IdList&, bool inv);
+   string getGateType() const { return isInv()? "const1" : "const0"; }
    void simulate();
    void genCNF(SatSolver&);
 	// Methods about cut
@@ -118,19 +122,8 @@ public:
 class CirBufGate: public CirGate
 {
 public: 
-   CirBufGate(unsigned, const string&, const IdList&); 
-   string getGateType() const { return "buf"; }
-   void simulate();
-   void genCNF(SatSolver&);
-	// Methods about cut
-	// void genGateFunc();
-};
-
-class CirNotGate: public CirGate
-{
-public: 
-   CirNotGate(unsigned, const string&, const IdList&); 
-   string getGateType() const { return "not"; }
+   CirBufGate(unsigned, const string&, const IdList&, bool inv); 
+   string getGateType() const { return isInv()? "not" : "buf"; }
    void simulate();
    void genCNF(SatSolver&);
 	// Methods about cut
@@ -140,19 +133,8 @@ public:
 class CirAndGate: public CirGate
 {
 public: 
-   CirAndGate(unsigned, const string&, const IdList&); 
-   string getGateType() const { return "and"; }
-   void simulate();
-   void genCNF(SatSolver&);
-	// Methods about cut
-	// void genGateFunc();
-};
-
-class CirNandGate: public CirGate
-{
-public: 
-   CirNandGate(unsigned, const string&, const IdList&); 
-   string getGateType() const { return "nand"; }
+   CirAndGate(unsigned, const string&, const IdList&, bool inv); 
+   string getGateType() const { return isInv()? "nand" : "and"; }
    void simulate();
    void genCNF(SatSolver&);
 	// Methods about cut
@@ -162,19 +144,8 @@ public:
 class CirOrGate: public CirGate
 {
 public: 
-   CirOrGate(unsigned, const string&, const IdList&); 
-   string getGateType() const { return "or"; }
-   void simulate();
-   void genCNF(SatSolver&);
-	// Methods about cut
-	// void genGateFunc();
-};
-
-class CirNorGate: public CirGate
-{
-public: 
-   CirNorGate(unsigned, const string&, const IdList&); 
-   string getGateType() const { return "nor"; }
+   CirOrGate(unsigned, const string&, const IdList&, bool inv); 
+   string getGateType() const { return isInv()? "nor" : "or"; }
    void simulate();
    void genCNF(SatSolver&);
 	// Methods about cut
@@ -184,19 +155,8 @@ public:
 class CirXorGate: public CirGate
 {
 public: 
-   CirXorGate(unsigned, const string&, const IdList&); 
-   string getGateType() const { return "xor"; }
-   void simulate();
-   void genCNF(SatSolver&);
-	// Methods about cut
-	// void genGateFunc();
-};
-
-class CirXnorGate: public CirGate
-{
-public: 
-   CirXnorGate(unsigned, const string&, const IdList&); 
-   string getGateType() const { return "xnor"; }
+   CirXorGate(unsigned, const string&, const IdList&, bool inv); 
+   string getGateType() const { return isInv()? "xnor" : "xor"; }
    void simulate();
    void genCNF(SatSolver&);
 	// Methods about cut

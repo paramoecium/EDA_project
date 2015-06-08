@@ -13,13 +13,19 @@ main(int argc, char** argv){
       cirMgr -> readCircuit(argv[2], false);
       cirMgr -> linkGates();
       cirMgr -> buildDfsList();
-      // cirMgr -> printNetlist();
+      cirMgr -> printNetlist();
       cirMgr -> genPattern(fileName);
       ifstream patternFile(fileName.c_str(), ios::in);
       cirMgr -> fileSim(patternFile);
+      cout << "====================" << endl;
+      cout << "FEC pairs before CEC" << endl;
       cirMgr -> printFECPairs();
+      cout << "====================" << endl;
       cirMgr -> cec();
+      cout << "====================" << endl;
+      cout << "FEC pairs after CEC" << endl;
       cirMgr -> printFECPairs();
+      cout << "====================" << endl;
       cirMgr -> writeCircuit(argv[3], true);
       cirMgr -> writeCircuit(argv[4], false);
    }
