@@ -23,7 +23,7 @@ CirMgr::cec()
    solver.initialize();
    genProofModel(solver);
    cout << endl;
-   for (int i=0, m=_fecGrps.size(); i<m; ++i){
+   for (int i=0; i<(int)_fecGrps.size(); ++i){
       for (unsigned j=1, n=_fecGrps[i]->size(); j<n; ++j){
          unsigned g1Num = _fecGrps[i]->at(0);
          unsigned g2Num = _fecGrps[i]->at(j);
@@ -35,8 +35,9 @@ CirMgr::cec()
             continue;
          bool inv = ((g1Num%2) ^ (g2Num%2));
          cursorToPrevLine(); cursorClearAfter();
-         cout << "solving " << setw(6) << g1->getId() 
-              << " with " << setw(6) << g2->getId() << "......";
+         cout << _fecGrps.size() << " FEC groups left, "
+              << "solving " << setw(6) << g1->getId() 
+              << " with " << setw(6) << g2->getId() << " ...... ";
          if (solveGateEqBySat(solver, g1, g2, inv)){
             cout << "Equivalence!!" << endl;
             g2->setEqGate(g1);
