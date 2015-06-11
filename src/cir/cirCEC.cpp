@@ -37,6 +37,7 @@ CirMgr::cec()
          if (solveGateEqBySat(solver, g1, g2, inv)){
             cout << "Equivalence!!" << endl;
             g2->setEqGate(g1);
+            g2->setLit(inv? ~g1->getLit() : g1->getLit());
          }
          else{
             cout << "UnEquivalence!!" << endl;
@@ -57,12 +58,27 @@ CirMgr::cec()
 void
 CirMgr::genProofModel(SatSolver& s)
 {
-   for (unsigned i=0, m=_dfsList.size(); i<m; ++i){
-      Var v = s.newVar();
-      _dfsList[i]->setVar(v);
+   for (unsigned i=0, m=_dfsList.size(); i<m; ++i) {
+      CirGate* gate = _dfsList[i];
+      if(gate->getGateType() == "buf"){
+         assert(gate->getFaninSize() == 1);
+         gate->setLit(gate->getFaninGate(0)->getLit());
+      }
+      else if(gate->getGateType() == "not"){
+         assert(gate->getFaninSize() == 1);
+         gate->setLit(~(gate->getFaninGate(0)->getLit()));
+      }
+      else{
+         Var v = s.newVar();
+         // _dfsList[i]->setVar(v);
+         gate->setLit(Lit(v));
+      }
    }
-   for (unsigned i=0, m=_dfsList.size(); i<m; ++i)
-      _dfsList[i]->genCNF(s);
+   for (unsigned i=0, m=_dfsList.size(); i<m; ++i) {
+      if(_dfsList[i]->getGateType() != "buf" &&
+         _dfsList[i]->getGateType() != "not" )
+         _dfsList[i]->genCNF(s);
+   }
 }
 
 // Solve whether two gates are fuctionally equivalent
@@ -71,12 +87,18 @@ CirMgr::genProofModel(SatSolver& s)
 bool
 CirMgr::solveGateEqBySat(SatSolver& s, CirGate* g1, CirGate* g2, bool inverse){
    Var newV = s.newVar();
-   vector<Var> vars;
-   vars.push_back(g1->getVar());
-   vars.push_back(g2->getVar());
-   s.addXorCNF(newV, vars, inverse);
+   // vector<Var> vars;
+   // vars.push_back(g1->getVar());
+   // vars.push_back(g2->getVar());
+   // s.addXorCNF(newV, vars, inverse);
+   Lit newLit = inverse? ~Lit(newV) : Lit(newV);
+   vector<Lit> lits;
+   lits.push_back(g1->getLit());
+   lits.push_back(g2->getLit());
+   s.addXorCNF(newLit, lits, inverse);
    s.assumeRelease();  // Clear assumptions
-   s.assumeProperty(newV, true);
+   // s.assumeProperty(newV, true);
+   s.assumeProperty(newLit, true);
    return !s.assumpSolve();
 }
 
@@ -85,8 +107,10 @@ CirMgr::doSimBySAT(const SatSolver& s)
 {
    unsigned* simValue = new unsigned[_piList.size()];
    for (unsigned i = 0, m=_piList.size(); i<m; ++i){
-      int temp = s.getValue(getGateById(_piList[i])->getVar());
+      int temp = s.getValue(var(getGateById(_piList[i])->getLit()));
       if (temp == -1) temp = 0;
+      else if (sign(getGateById(_piList[i])->getLit())) 
+         temp ^= 1;
       simValue[i] = temp + (rand() & ~1u);
    }
    checkFec(simValue, 32);

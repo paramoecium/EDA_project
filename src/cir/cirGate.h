@@ -54,7 +54,7 @@ public:
    virtual void genCNF(SatSolver&) = 0;
    void         setVar(Var v) { _lit=Lit(v); }
    void         setLit(Lit lit) { _lit=lit; }
-   Var          getVar() const { return var(_lit); }
+   // Var          getVar() const { return var(_lit); }
    Lit          getLit() const { return _lit; }
    void         setEqGate(CirGate* g) { _eqGate = g; }
    CirGate*     getEqGate() const { return _eqGate; }

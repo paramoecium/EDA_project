@@ -87,7 +87,8 @@ CirXorGate::simulate(){
 // generate CNF clause
 void 
 CirConst0Gate::genCNF(SatSolver& s){
-   s.addConst0CNF(getVar(), isInv());
+   // s.addConst0CNF(getVar(), isInv());
+   s.addConst0CNF(getLit(), isInv());
 }
 
 void
@@ -96,31 +97,41 @@ CirPiGate::genCNF(SatSolver& s){
 
 void 
 CirBufGate::genCNF(SatSolver& s){
-   s.addBufCNF(getVar(), _faninGateList[0]->getVar(), isInv());
+   // s.addBufCNF(getVar(), _faninGateList[0]->getVar(), isInv());
+   s.addBufCNF(getLit(), _faninGateList[0]->getLit(), isInv());
 }
 
 void 
 CirAndGate::genCNF(SatSolver& s){
-   vector<Var> faninVar;
+   // vector<Var> faninVar;
+   vector<Lit> faninLit;
    for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
-      faninVar.push_back(_faninGateList[i]->getVar());
-   s.addAndCNF(getVar(), faninVar, isInv());
+      // faninVar.push_back(_faninGateList[i]->getVar());
+      faninLit.push_back(_faninGateList[i]->getLit());
+   // s.addAndCNF(getVar(), faninVar, isInv());
+   s.addAndCNF(getLit(), faninLit, isInv());
 }
 
 void 
 CirOrGate::genCNF(SatSolver& s){
-   vector<Var> faninVar;
+   // vector<Var> faninVar;
+   vector<Lit> faninLit;
    for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
-      faninVar.push_back(_faninGateList[i]->getVar());
-   s.addOrCNF(getVar(), faninVar, isInv());
+      // faninVar.push_back(_faninGateList[i]->getVar());
+      faninLit.push_back(_faninGateList[i]->getLit());
+   // s.addOrCNF(getVar(), faninVar, isInv());
+   s.addOrCNF(getLit(), faninLit, isInv());
 }
 
 void 
 CirXorGate::genCNF(SatSolver& s){
-   vector<Var> faninVar;
+   // vector<Var> faninVar;
+   vector<Lit> faninLit;
    for (unsigned i=0, m=_faninGateList.size(); i<m; ++i)
-      faninVar.push_back(_faninGateList[i]->getVar());
-   s.addXorCNF(getVar(), faninVar, isInv());
+      // faninVar.push_back(_faninGateList[i]->getVar());
+      faninLit.push_back(_faninGateList[i]->getLit());
+   // s.addXorCNF(getVar(), faninVar, isInv());
+   s.addXorCNF(getLit(), faninLit, isInv());
 }
 
 void

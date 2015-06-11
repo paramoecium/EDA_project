@@ -39,6 +39,10 @@ extern char myGetChar();
 // In myParse.cpp
 extern void parseStr(ifstream& fin, const vector<char>& sep, const vector<char>& stop, vector<std::string>& list);
 
+// In myScreen.cpp
+extern void cursorToPrevLine();
+extern void cursorClearAfter();
+
 template<class T>
 void clearList(T& l)
 {

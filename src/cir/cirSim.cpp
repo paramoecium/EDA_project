@@ -10,6 +10,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cassert>
+#include <cmath>
 #include "cirMgr.h"
 #include "cirGate.h"
 #include "util.h"
@@ -45,34 +46,31 @@ typedef pair<SimPValue, IdList*> FecNode;
 // If there is no fecGroup in fecGroupLIst,
 // whether has been simulated before, simulated again
 // Else, simulated by original fecGroup
-   /*
+
 void
 CirMgr::randomSim()
 {
-   unsigned* iv = new unsigned[_pis.size()];
-   unsigned failTime = 0, numPattern = 0;
-   for (unsigned i = 0; i < _pis.size(); ++i)
-      iv[i] = (rand() << 16) ^ rand();
-   if (_fecGrps.size() == 0) 
-      initFec(iv, 32);
-   else checkFec(iv, 32);
-   numPattern += 32;
-   unsigned stopTime;
-   if (_pis.size() < 10) stopTime = _pis.size();
-   else if (_pis.size() < 100) stopTime = _pis.size() * _pis.size() / 100 + 10;
-   else stopTime = 181;
-
-   while (failTime < stopTime && _fecGrps.size()){
-      for (unsigned i = 0; i < _pis.size(); ++i)
-         iv[i] = (rand() << 16) ^ rand();
-      if (!checkFec(iv, 32)) ++failTime;
-      numPattern += 32;
+   unsigned piSize = _piList.size();
+   unsigned *v = new unsigned[piSize];
+   unsigned fail = 0;
+   unsigned maxFail = (unsigned)sqrt(piSize) + 10; // can tune this
+   unsigned numPattern = 0;
+   
+   cout << numPattern << " patterns simulated." << endl;
+   while(fail < maxFail){
+      for(unsigned i=0; i<piSize; ++i)
+         v[i] = rand();
+      if (_fecGrps.size() == 0 && numPattern == 0)
+         initFec(v, numPattern);
+      else fail += (checkFec(v, numPattern)? 0 : 1);
+      numPattern++;
+      
+      cursorToPrevLine(); cursorClearAfter();
+      cout << numPattern << " patterns simulated.";
+      cout << " fail = " << fail << endl;
    }
-   cout << "MAX_FAILS = " << stopTime << endl
-        << numPattern << " patterns simulated." << endl;
-   delete[] iv;
+   delete[] v;
 }
-   */
 
 void 
 CirMgr::genPattern(const string& fileName)

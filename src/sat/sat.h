@@ -60,6 +60,13 @@ class SatSolver
          lits.push(lf);
          _solver->addClause(lits); lits.clear();
       }
+      void addConst0CNF(Lit lf, bool Const1) {
+         vec<Lit> lits;
+         if(Const1) lf = ~lf;
+         lits.push(~lf);
+         _solver->addClause(lits); lits.clear();
+      }
+
      
       void addBufCNF(Var vf, Var va, bool Inv) {
          vec<Lit> lits;
@@ -70,6 +77,15 @@ class SatSolver
          lits.push(lf); lits.push(~la);
          _solver->addClause(lits); lits.clear();
       }
+      void addBufCNF(Lit lf, Lit la, bool Inv) {
+         vec<Lit> lits;
+         if(Inv) lf = ~lf;
+         lits.push(~lf); lits.push(la);
+         _solver->addClause(lits); lits.clear();
+         lits.push(lf); lits.push(~la);
+         _solver->addClause(lits); lits.clear();
+      }
+
       
       // And & Nand CNF
       // vf = va & vb
@@ -86,6 +102,19 @@ class SatSolver
          lastLits.push(lf); //(~va+~vb+vf)
          _solver->addClause(lastLits); lastLits.clear();
       }
+      void addAndCNF(Lit lf, const vector<Lit>& faninLit, bool Nand) {
+         vec<Lit> lits, lastLits;
+         if(Nand) lf = ~lf;
+         for (unsigned i=0, m=faninLit.size(); i<m; ++i){
+            Lit la = faninLit[i];
+            lits.push(la); lits.push(~lf); // (~vf+va)
+            _solver->addClause(lits); lits.clear();
+            lastLits.push(~la);
+         }
+         lastLits.push(lf); //(~va+~vb+vf)
+         _solver->addClause(lastLits); lastLits.clear();
+      }
+
      
       // Or & Nor CNF
       // vf = va + vb
@@ -102,7 +131,19 @@ class SatSolver
          lastLits.push(~lf); //(va+vb+~vf)
          _solver->addClause(lastLits); lastLits.clear();
       }
-      
+      void addOrCNF(Lit lf, const vector<Lit>& faninLit, bool Nor) {
+         vec<Lit> lits, lastLits;
+         if(Nor) lf = ~lf;
+         for (unsigned i=0, m=faninLit.size(); i<m; ++i){
+            Lit la = faninLit[i];
+            lits.push(~la); lits.push(lf); // (vf+~va)
+            _solver->addClause(lits); lits.clear();
+            lastLits.push(la);
+         }
+         lastLits.push(~lf); //(va+vb+~vf)
+         _solver->addClause(lastLits); lastLits.clear();
+      }
+
       // fa/fb = true if it is inverted
       // XOr & Xnor CNF
       // vf = va xor vb
@@ -136,17 +177,52 @@ class SatSolver
             _solver->addClause(lits); lits.clear();
          }
       }
-    
+      void addXorCNF(Lit lf, const vector<Lit>& faninLit, bool Xnor) {
+         int n = faninLit.size();
+         vec<Lit> lits, tmpLit;
+         Lit      la, lb, lc; // lf = la ^ lb
+
+         assert(n > 0);
+         // just in case
+         if(n == 1){
+            addBufCNF(lf, faninLit[0], Xnor);
+            return;
+         }
+         tmpLit.push(faninLit[0]);
+         for(int i=1; i<n-1; ++i) tmpLit.push(Lit(newVar()));
+         tmpLit.push(Xnor? ~lf : lf);
+         assert(tmpLit.size() == n);
+         for(int i=1; i<n; ++i){
+            la = tmpLit[i-1];
+            lb = faninLit[i];
+            lc = tmpLit[i];
+            lits.push(~la); lits.push(lb); lits.push(lc);
+            _solver->addClause(lits); lits.clear();
+            lits.push(la); lits.push(~lb); lits.push(lc);
+            _solver->addClause(lits); lits.clear();
+            lits.push(la); lits.push(lb); lits.push(~lc);
+            _solver->addClause(lits); lits.clear();
+            lits.push(~la); lits.push(~lb); lits.push(~lc);
+            _solver->addClause(lits); lits.clear();
+         }
+      }
+
       // For incremental proof, use "assumeSolve()"
       void assumeRelease() { _assump.clear(); }
       void assumeProperty(Var prop, bool val) {
          _assump.push(val? Lit(prop): ~Lit(prop));
+      }
+      void assumeProperty(Lit prop, bool val) {
+         _assump.push(val? prop: ~prop);
       }
       bool assumpSolve() { return _solver->solve(_assump); }
 
       // For one time proof, use "solve"
       void assertProperty(Var prop, bool val) {
          _solver->addUnit(val? Lit(prop): ~Lit(prop));
+      }
+      void assertProperty(Lit prop, bool val) {
+         _solver->addUnit(val? prop: ~prop);
       }
       bool solve() { _solver->solve(); return _solver->okay(); }
 
