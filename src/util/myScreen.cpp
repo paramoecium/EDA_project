@@ -13,6 +13,6 @@ void cursorToPrevLine(){
 
 void cursorClearAfter(){
    string str(CSI);
-   str += "1K";
+   str += "0K";
    cout << str;
 }

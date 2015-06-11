@@ -11,6 +11,7 @@
 #include <iomanip>
 #include <cassert>
 #include <cmath>
+#include <algorithm>
 #include "cirMgr.h"
 #include "cirGate.h"
 #include "util.h"
@@ -41,6 +42,22 @@ private:
 };
 
 typedef pair<SimPValue, IdList*> FecNode;
+
+/*********************************/
+/*   comparison for FEC groups   */
+/*********************************/
+class CmpFecGrp{
+public:
+   CmpFecGrp(const CirMgr* cirMgr): _cirMgr(cirMgr) {}
+   bool operator () (IdList const *fecGrp1, IdList const *fecGrp2) const {
+      assert(fecGrp1->size() > 0);
+      assert(fecGrp2->size() > 0);
+      return (_cirMgr->getGateById(fecGrp1->at(0)/2)->getDfsOrder() <
+              _cirMgr->getGateById(fecGrp2->at(0)/2)->getDfsOrder());
+   }
+private:
+   const CirMgr* _cirMgr;
+};
 
 /************************************************/
 /*   Public member functions about Simulation   */
@@ -163,6 +180,8 @@ CirMgr::checkFec(const unsigned *v)
       for (unsigned i = 0; i < newGrps.size(); ++i)
          if (*newGrps[i] != *_fecGrps[i]) different = true;
    }
+   // sort the FEC groups by DFS order
+   sort(_fecGrps.begin(), _fecGrps.end(), CmpFecGrp(this));
    // delete old one (release memory)
    for (unsigned i = 0; i < newGrps.size(); ++i)
       delete newGrps[i];
@@ -177,7 +196,7 @@ CirMgr::checkFec(const unsigned *v)
 //   else store 2*id
 // 5.Collect all valid fecGroups(size > 1) into newGrps
 void
-CirMgr::sortFecGrp(IdList* oldFecGrp, vector <IdList*>& newGrps)
+CirMgr::sortFecGrp(IdList* oldFecGrp, vector<IdList*>& newGrps)
 {
    HashMap<SimPValue, IdList*> fecHashMap(getHashSize(oldFecGrp->size()));
    //HashMap<SimPValue, IdList*> fecHashMap((oldFecGrp->size())/2);

@@ -54,10 +54,8 @@ public:
 
    // about solve SAT 
    virtual void genCNF(SatSolver&) = 0;
-   void         setVar(Var v) { _lit=Lit(v); }
-   void         setLit(Lit lit) { _lit=lit; }
-   // Var          getVar() const { return var(_lit); }
-   Lit          getLit() const { return _lit; }
+   void         setVar(Var v) { _var=v; }
+   Var          getVar() const { return _var; }
    void         setEqGate(CirGate* g) { _eqGate = g; }
    CirGate*     getEqGate() const { return _eqGate; }
 
@@ -87,7 +85,7 @@ protected:
    CirGate*          _eqGate;
    
    // SAT solver
-   Lit               _lit;
+   Var               _var;
 
    // cut
    CirCutList        _cutList;

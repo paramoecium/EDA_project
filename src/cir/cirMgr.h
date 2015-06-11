@@ -48,13 +48,14 @@ public:
 private:
    // gate id and name mapping
    bool     checkNameDeclared(const string& name) const;
-   void     createIdByName(const string& name);
-   unsigned getIdByName(const string& name);
+   void     createIdByName   (const string& name);
+   unsigned getIdByName      (const string& name);
    
    // used in buildDfsList
    void dfs(CirGate* gate);
 
    // Member function about simulation
+   bool cmpFecGrp(const IdList* &fecgrp1, const IdList* &fecGrp2) const ;
    void initFec(const unsigned* v);
    bool checkFec(const unsigned* v);
    void sortFecGrp(IdList*, vector<IdList*>&);
