@@ -35,11 +35,13 @@ public:
    bool operator == (const SimPValue& a) const { return (a._value == _value); }
    friend ostream& operator << (ostream& os , const SimPValue& s) { os << s._value; return os; }
    unsigned getValue(){ return _value; }
+
 private:
    unsigned _value;
 };
 
 typedef pair<SimPValue, IdList*> FecNode;
+
 /************************************************/
 /*   Public member functions about Simulation   */
 /************************************************/
@@ -61,8 +63,8 @@ CirMgr::randomSim()
       for(unsigned i=0; i<piSize; ++i)
          v[i] = rand();
       if (_fecGrps.size() == 0 && numPattern == 0)
-         initFec(v, numPattern);
-      else fail += (checkFec(v, numPattern)? 0 : 1);
+         initFec(v);
+      else fail += (checkFec(v)? 0 : 1);
       numPattern++;
       
       cursorToPrevLine(); cursorClearAfter();
@@ -94,18 +96,17 @@ CirMgr::genPattern(const string& fileName)
 
 void
 CirMgr::fileSim(ifstream& patternFile)
-{
-   
+{   
    unsigned* v = new unsigned[_piList.size()];
    unsigned numPattern = 0;
    for (unsigned i = 0; numPattern == 32 * i; ++i){
-      if (!getPiSimFromFile(patternFile, v, numPattern)){
+      if (!getPiSimFromFile(patternFile, v)){
          numPattern = 32 * i;
          break;
       }
       if (_fecGrps.size() == 0 && i == 0)
-         initFec(v, numPattern);
-      else checkFec(v, numPattern);
+         initFec(v);
+      else checkFec(v);
    }
    cout << numPattern << " patterns simulated." << endl;
    patternFile.close();
@@ -119,7 +120,7 @@ CirMgr::fileSim(ifstream& patternFile)
 // (called when no fecGroup in fecGroupsList)
 // should not be called if there are fec groups
 void
-CirMgr::initFec(const unsigned* v, const unsigned& outputBit)
+CirMgr::initFec(const unsigned* v)
 {
    IdList fec;
    // get pi value from v
@@ -142,7 +143,7 @@ CirMgr::initFec(const unsigned* v, const unsigned& outputBit)
 // If newFecGroups == old one, retrun false
 // else return true;
 bool 
-CirMgr::checkFec(const unsigned *v, const unsigned& outputBit)
+CirMgr::checkFec(const unsigned *v)
 {
    bool different = false;
    vector <IdList*> newGrps;
@@ -167,7 +168,6 @@ CirMgr::checkFec(const unsigned *v, const unsigned& outputBit)
       delete newGrps[i];
    return different;
 }
-
 
 // 1.Get all gates in the same fecGroup (oldFecGrp)
 // 2.Query whether there is fecGroup which g belongs to in HashMap
@@ -216,7 +216,7 @@ CirMgr::sortFecGrp(IdList* oldFecGrp, vector <IdList*>& newGrps)
 // When encounting space, see the following as another pattern
 // Use flag to detect space, true = there is space
 bool
-CirMgr::getPiSimFromFile(ifstream& patternFile, unsigned* v, unsigned& count)
+CirMgr::getPiSimFromFile(ifstream& patternFile, unsigned* v)
 {
    string temp;
    bool flag = false;
@@ -246,28 +246,9 @@ CirMgr::getPiSimFromFile(ifstream& patternFile, unsigned* v, unsigned& count)
               << "does not match the number of inpust(" << _piList.size() << ") in a circuit!!" << endl;
          return false;
       }
-      if (n != 0) { ++count; ++i; }
+      if (n != 0) { ++i; }
       if (flag) temp = temp.substr(n + 1);
    }
    return true;
 }
 
-/*
-void 
-CirMgr::outputSimValueToFile(unsigned outputBit)
-{
-   while (outputBit > 32) outputBit -= 32;
-   for (unsigned n = 1; n < 33 && n <= outputBit; ++n){
-      for (unsigned i = 0; i < _pis.size(); ++i){
-         bitset<32> simV(_pis[i]->getSimOutput());
-         *_simLog << simV[n];
-      }
-      *_simLog << " ";
-      for (unsigned i = 0; i < _pos.size(); ++i){
-         bitset<32> simV(_pos[i]->getSimOutput());
-         *_simLog << simV[n];
-      }
-      *_simLog << endl;
-   }
-}
-*/

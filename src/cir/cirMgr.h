@@ -55,17 +55,17 @@ private:
    void dfs(CirGate* gate);
 
    // Member function about simulation
-   void initFec(const unsigned*, const unsigned&);
-   bool checkFec(const unsigned*, const unsigned&);
+   void initFec(const unsigned* v);
+   bool checkFec(const unsigned* v);
    void sortFecGrp(IdList*, vector<IdList*>&);
    void simPi(const unsigned*);
-   void doSimBySAT(const SatSolver&);
-   bool getPiSimFromFile(ifstream&, unsigned*, unsigned&);
+   void doSimBySAT(const SatSolver& s);
+   bool getPiSimFromFile(ifstream& patternFile, unsigned* v);
    //void outputSimValueToFile(unsigned);
    
    // Member function about cec
-   void genProofModel(SatSolver&);
-   bool solveGateEqBySat(SatSolver&, CirGate*, CirGate*,bool);
+   void genProofModel(SatSolver& s);
+   bool solveGateEqBySat(SatSolver& s, CirGate* g1, CirGate* g2, bool inverse);
    void solveBuf();
 
    string                  _moduleName[2];

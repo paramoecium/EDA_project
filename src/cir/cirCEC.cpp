@@ -113,7 +113,7 @@ CirMgr::doSimBySAT(const SatSolver& s)
          temp ^= 1;
       simValue[i] = temp + (rand() & ~1u);
    }
-   checkFec(simValue, 32);
+   checkFec(simValue);
    delete[] simValue;
 }
 

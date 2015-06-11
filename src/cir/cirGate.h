@@ -37,6 +37,8 @@ public:
    //dfs
    bool isMark() const { return (_dfsFlag == dfsFlag); }
    void mark() { _dfsFlag = dfsFlag; }
+   void setDfsOrder(unsigned order) { _dfsOrder = order; }
+   unsigned getDfsOrder() const { return _dfsOrder; }
 
    // print function
    virtual void printGate() const;
@@ -72,6 +74,7 @@ protected:
    string            _name;
    bool              _isPi, _isPo;
    bool              _inv;
+   unsigned          _dfsOrder;
    
    // fanin and fanout
    IdList            _faninIdList;

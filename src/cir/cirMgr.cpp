@@ -394,4 +394,5 @@ CirMgr::dfs(CirGate* gate){
    for(unsigned i=0, n=gate->getFaninSize(); i<n; ++i)
       dfs(gate->getFaninGate(i));
    _dfsList.push_back(gate);
+   gate->setDfsOrder(_dfsList.size());
 }
