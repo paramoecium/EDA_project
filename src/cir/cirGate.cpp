@@ -123,23 +123,32 @@ CirXorGate::genCNF(SatSolver& s){
    s.addXorCNF(getVar(), faninVar, isInv());
 }
 
-void
-CirGate::setGateFunc(BddNode func){
-   mark();
-   _tmpFunc = func;
-}
-
 // genCutList
 void
 CirGate::genCutList(){
-   // TODO: need to fix this for more than two inputs
-   _cutList.genCutList(_faninGateList[0]->getCutList(),
-                       _faninGateList[1]->getCutList(), _id);
+   _cutList.genCutList(_faninGateList[0]->getCutList(), _id);
+   CirCutList tmpCutList;
+   for(unsigned i=1, n=_faninGateList.size(); i<n; ++i){
+      tmpCutList.genCutList(_faninGateList[0]->getCutList(),
+                            _faninGateList[1]->getCutList(), _id);
+      _cutList = tmpCutList;
+   }
 }
 
 void
 CirConst0Gate::genCutList(){
    _cutList.genCutList(_id);
+}
+
+void
+CirPiGate::genCutList(){
+   _cutList.genCutList(_id);
+}
+
+void
+CirGate::setGateFunc(BddNode func){
+   mark();
+   _tmpFunc = func;
 }
 
 // genGateFunc
@@ -155,6 +164,11 @@ CirConst0Gate::genGateFunc(){
    if(isMark()) return;
    mark();
    _tmpFunc = bddMgr->getSupport(0); 
+}
+
+void
+CirPiGate::genGateFunc(){
+   return;
 }
 
 // print function

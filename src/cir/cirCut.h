@@ -21,8 +21,8 @@ class CirCut
 {
 public:
    CirCut();
-	CirCut(unsigned);
-	CirCut(const CirCut&);
+	CirCut(unsigned leaf);
+	CirCut(const CirCut& cut);
    ~CirCut();
 
 	// unsigned size() const { return _leaf.size(); }
@@ -36,15 +36,15 @@ public:
 	unsigned&       operator [] (int idx)       { return _leaf[idx]; }
 	const unsigned& operator [] (int idx) const { return _leaf[idx]; }
 
-	CirCut* merge(const CirCut*) const ;
-	bool containGateId(unsigned) const ;
-	bool dominateCut(const CirCut*) const ;
+	CirCut* merge(const CirCut* cut) const ;
+	bool containGateId(unsigned gid) const ;
+	bool dominateCut(const CirCut* cut) const ;
    void setBoss(CirCut* cut){ _boss = cut; }
    CirCut* getBoss(){ return _boss==this? _boss : _boss->getBoss(); }
 
 	void genCutFunc();
 	BddNode getFuncByIdx(int idx) const { return _func[idx]; }
-   BddNode getFuncByRoot(unsigned) const ;
+   BddNode getFuncByRoot(unsigned root) const ;
    void setVisit(){ _visited = true; }
    bool isVisit() const { return _visited; }
 
@@ -60,8 +60,8 @@ public:
 	friend ostream& operator << (ostream&, const CirCut&);
 
 private:
-	bool addLeafForce(unsigned);
-	bool addLeaf     (unsigned);
+	bool addLeafForce(unsigned leaf);
+	bool addLeaf     (unsigned leaf);
 	double costFunc(int) const ;
 	
 	IdList		      _root;
@@ -109,16 +109,16 @@ public:
 	const CirCut* operator [] (int idx) const { return _cuts[idx]; }
 
 	void clear(){ _cuts.clear(); }
-	bool addCutForce(CirCut*, unsigned);
-	bool addCut     (CirCut*, unsigned);
+	bool addCutForce(CirCut* cut, unsigned root);
+	bool addCut     (CirCut* cut, unsigned root);
    void removeRedundant();
-   void replaceByHash(unsigned);
-	void deleteCutById(unsigned);
-   void genCutList(unsigned);
-	void genCutList(CirCutList&, unsigned);
-	void genCutList(const CirCutList&, const CirCutList&, unsigned);
+   void replaceByHash(unsigned root);
+	void deleteCutById(unsigned id);
+   void genCutList(unsigned root);
+	void genCutList(CirCutList& cutList, unsigned root);
+	void genCutList(const CirCutList& cutList0, const CirCutList& cutList1, unsigned root);
 
-   static void initHash(unsigned);
+   static void initHash(unsigned k);
    static void deleteHash();
    static void printAllCut();
 	

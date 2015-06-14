@@ -42,6 +42,9 @@ public:
    // circuit reporting
    void printNetlist() const;
    void printFECPairs() const;
+
+   // Member functions about cut
+   void genAllCutList(unsigned k);
    
    CirGate* getGateById(unsigned id) const { return _gateList[id]; }
 

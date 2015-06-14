@@ -358,6 +358,34 @@ CirMgr::printFECPairs() const
    }
 }
 
+// generate cut list for all gates
+void
+CirMgr::genAllCutList(unsigned k){
+	unsigned size = 0;
+   CirCutList::initHash(getHashSize(_dfsList.size()*20));
+	CirCut::setMaxCutSize(k);
+	for(unsigned i=0, n=_dfsList.size(); i<n; ++i){
+      // cout << "generating gate " << _dfsList[i]->getGid() << endl;
+      _dfsList[i]->genCutList();
+      // cout << "size = " << _dfsList[i]->getCutList().size() << endl;
+      size += _dfsList[i]->getCutList().size();
+   }    
+	cout << "average number of cuts: " << (double)size/_dfsList.size() << endl;
+
+   // debug
+   /*   
+   for(unsigned i=0, n=_dfsList.size(); i<n; ++i){
+      CirGate* gate = _dfsList[i];
+      cout << "gate " << gate->getId() << ":" << endl;
+      cout << gate->getCutList() << endl;
+   }
+   */
+   cout << endl;
+   // CirCutList::printAllCut();
+   // end debug
+}
+
+
 /**************************************/
 /*   class CirMgr private functions   */
 /**************************************/

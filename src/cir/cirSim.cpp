@@ -72,8 +72,12 @@ CirMgr::randomSim()
    unsigned piSize = _piList.size();
    unsigned *v = new unsigned[piSize];
    unsigned fail = 0;
-   unsigned maxFail = (unsigned)sqrt(piSize) + 10; // can tune this
+   unsigned maxFail = 1, tmp;
    unsigned numPattern = 0;
+
+   // can tune this
+   tmp = _dfsList.size();
+   while(tmp > 0){ tmp /= 7; maxFail *= 2; }
    
    cout << numPattern << " patterns simulated." << endl;
    while(fail < maxFail){
@@ -86,7 +90,7 @@ CirMgr::randomSim()
       
       cursorToPrevLine(); cursorClearAfter();
       cout << numPattern << " patterns simulated.";
-      cout << " fail = " << fail << endl;
+      cout << " fail = " << fail << ", maxFail = " << maxFail << endl;
    }
    delete[] v;
 }

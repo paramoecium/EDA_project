@@ -119,7 +119,8 @@ public:
    void simulate(unsigned);
    void genCNF(SatSolver&);
 	// Methods about cut
-	// void genGateFunc();
+   void genCutList();
+	void genGateFunc();
 };
 
 class CirBufGate: public CirGate

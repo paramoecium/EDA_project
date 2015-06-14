@@ -27,6 +27,7 @@ main(int argc, char** argv){
       cout << "FEC pairs after CEC" << endl;
       cirMgr -> printFECPairs();
       cout << "====================" << endl;
+      cirMgr -> genAllCutList(4);
       cirMgr -> writeCircuit(argv[3], true);
       cirMgr -> writeCircuit(argv[4], false);
    }
