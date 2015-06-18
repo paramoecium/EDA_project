@@ -40,8 +40,9 @@ public:
    void cec();
 
    // circuit reporting
-   void printNetlist() const;
-   void printFECPairs() const;
+   void printNetlist() const ;
+   void printFECPairs() const ;
+   void writeFECPairs(const string& filename) const ;
 
    // Member functions about cut
    void genAllCutList(unsigned k);

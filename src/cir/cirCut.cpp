@@ -302,13 +302,17 @@ void
 CirCutList::genCutList(CirCutList& cutList, unsigned root){
 	_cuts.clear();
 #ifndef NO_HASH
-	for(unsigned i=0, n=cutList.size(); i<n; ++i)
-      addCutForce(cutList[i], root);
+	for(unsigned i=0, n=cutList.size(); i<n; ++i){
+      if(cutList[i]->size() > 1)
+         addCutForce(cutList[i], root);
+   }
    CirCut* cut = new CirCut(root);
    if(!addCutForce(cut, root)) delete cut;
 #else
-	for(unsigned i=0, n=cutList.size(); i<n; ++i)
-      addCutForce(new CirCut(*cutList[i]), root);
+	for(unsigned i=0, n=cutList.size(); i<n; ++i){
+      if(cutList[i]->size() > 1)
+         addCutForce(new CirCut(*cutList[i]), root);
+   }
    addCutForce(new CirCut(root), root);
 #endif
    sort(_cuts.begin(), _cuts.end(), cutCmp);
@@ -328,7 +332,10 @@ CirCutList::genCutList(const CirCutList& cutList0,
 	for(unsigned i=0, n0=cutList0.size(); i<n0; ++i){
 		for(unsigned j=0, n1=cutList1.size(); j<n1; ++j){
 			cut = cutList0[i]->merge(cutList1[j]);
-			if(cut != 0 && !addCutForce(cut, root)) delete cut;
+			if(cut != 0){
+            if(cut->size() == 1) delete cut;
+            else if(!addCutForce(cut, root)) delete cut;
+         }
 		}
 	}
 #ifndef NO_HASH

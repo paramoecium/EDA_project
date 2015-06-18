@@ -358,6 +358,23 @@ CirMgr::printFECPairs() const
    }
 }
 
+void
+CirMgr::writeFECPairs(const string& filename) const
+{
+   ofstream fout(filename.c_str());
+   unsigned head, current;
+   for (unsigned i=0, n=_fecGrps.size(); i<n; ++i){
+      head = _fecGrps[i]->at(0);
+      for (unsigned j=0, m=_fecGrps[i]->size(); j<m; ++j){
+         current = _fecGrps[i]->at(j);
+         if (current%2 != head%2) cout << "!";
+         if (j) fout << " ";
+         fout << getGateById(current/2)->getName();
+      }
+      fout << endl;
+   }
+}
+
 // generate cut list for all gates
 void
 CirMgr::genAllCutList(unsigned k){
@@ -373,7 +390,7 @@ CirMgr::genAllCutList(unsigned k){
 	cout << "average number of cuts: " << (double)size/_dfsList.size() << endl;
 
    // debug
-   /*   
+   /*  
    for(unsigned i=0, n=_dfsList.size(); i<n; ++i){
       CirGate* gate = _dfsList[i];
       cout << "gate " << gate->getId() << ":" << endl;
