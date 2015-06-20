@@ -74,6 +74,8 @@ Clause	sat/SolverTypes.h	/^class Clause {$/;"	c
 ClauseId	sat/SolverTypes.h	/^typedef int ClauseId;     \/\/ (might have to use uint64 one day...)$/;"	t
 ClauseId_NULL	sat/SolverTypes.h	/^const   int ClauseId_NULL = INT_MIN;$/;"	v
 Clause_new	sat/SolverTypes.h	/^inline Clause* Clause_new(bool learnt, const vec<Lit>& ps, ClauseId id = ClauseId_NULL) {$/;"	f
+CmpFecGrp	cir/cirSim.cpp	/^   CmpFecGrp(const CirMgr* cirMgr): _cirMgr(cirMgr) {}$/;"	f	class:CmpFecGrp
+CmpFecGrp	cir/cirSim.cpp	/^class CmpFecGrp{$/;"	c	file:
 DEFAULTS	sat/File.h	40;"	d
 DEFAULTS	sat/File.h	48;"	d
 DO_STD_ITE	bdd/bddMgr.cpp	106;"	d	file:
@@ -206,6 +208,7 @@ _cache	bdd/myHash.h	/^   CacheNode*     _cache;$/;"	m	class:Cache
 _cache	util/myHash.h	/^   CacheNode*     _cache;$/;"	m	class:Cache
 _cacheAccess	bdd/bddMgr.h	/^size_t  _cacheAccess;$/;"	m	class:BddMgr
 _cacheHit	bdd/bddMgr.h	/^size_t  _cacheHit;$/;"	m	class:BddMgr
+_cirMgr	cir/cirSim.cpp	/^   const CirMgr* _cirMgr;$/;"	m	class:CmpFecGrp	file:
 _computedTable	bdd/bddMgr.h	/^   BddCache               _computedTable;$/;"	m	class:BddMgr
 _curVar	sat/sat.h	/^      Var               _curVar;    \/\/ Variable currently$/;"	m	class:SatSolver
 _currentMem	util/myUsage.h	/^   double     _currentMem;$/;"	m	class:MyUsage
@@ -219,6 +222,7 @@ _debugRefCount	bdd/bddNode.cpp	/^bool BddNode::_debugRefCount = false;$/;"	m	cla
 _debugRefCount	bdd/bddNode.h	/^   static bool             _debugRefCount;$/;"	m	class:BddNode
 _dfsFlag	cir/cirGate.h	/^   mutable unsigned  _dfsFlag;$/;"	m	class:CirGate
 _dfsList	cir/cirMgr.h	/^   GateList                _dfsList;$/;"	m	class:CirMgr
+_dfsOrder	cir/cirGate.h	/^   unsigned          _dfsOrder;$/;"	m	class:CirGate
 _eqGate	cir/cirGate.h	/^   CirGate*          _eqGate;$/;"	m	class:CirGate
 _f	bdd/bddMgr.h	/^   size_t       _f;$/;"	m	class:BddCacheKey
 _faninGateList	cir/cirGate.h	/^   GateList          _faninGateList;$/;"	m	class:CirGate
@@ -245,7 +249,6 @@ _isPo	cir/cirGate.h	/^   bool              _isPi, _isPo;$/;"	m	class:CirGate
 _l	bdd/bddMgr.h	/^   size_t     _l;$/;"	m	class:BddHashKey
 _leaf	cir/cirCut.h	/^   unsigned          *_leaf, _sz;   \/\/ _leaf must be sorted$/;"	m	class:CirCut
 _left	bdd/bddNode.h	/^   BddNode              _left;$/;"	m	class:BddNodeInt
-_lit	cir/cirGate.h	/^   Lit               _lit;$/;"	m	class:CirGate
 _loc	util/myHashMap.h	/^      int _loc;       \/\/ _l location in the bucket$/;"	m	class:HashMap::iterator
 _maxCutSize	cir/cirCut.cpp	/^unsigned CirCut::_maxCutSize = 6;$/;"	m	class:CirCut	file:
 _maxCutSize	cir/cirCut.h	/^	static unsigned   _maxCutSize;$/;"	m	class:CirCut
@@ -279,6 +282,7 @@ _tmpFunc	cir/cirGate.h	/^   BddNode           _tmpFunc;$/;"	m	class:CirGate
 _totalUsedTime	util/myUsage.h	/^   double     _totalUsedTime;$/;"	m	class:MyUsage
 _uniqueTable	bdd/bddMgr.h	/^   BddHash                _uniqueTable;$/;"	m	class:BddMgr
 _value	cir/cirSim.cpp	/^   unsigned _value;$/;"	m	class:SimPValue	file:
+_var	cir/cirGate.h	/^   Var               _var;$/;"	m	class:CirGate
 _varMap	cir/cirMgr.h	/^   map<string, unsigned>   _varMap;$/;"	m	class:CirMgr
 _varNum	cir/cirMgr.h	/^   unsigned                _varNum;$/;"	m	class:CirMgr
 _visited	cir/cirCut.h	/^   bool              _visited;      \/\/ true if _func is generated$/;"	m	class:CirCut
@@ -289,16 +293,13 @@ activity	sat/Solver.h	/^    vec<double>         activity;         \/\/ A heurist
 activity	sat/SolverTypes.h	/^    float&    activity    ()      const {$/;"	f	class:Clause
 activity	sat/VarOrder.h	/^    const vec<double>&  activity;    \/\/ var->act. Pointer to external activity table.$/;"	m	class:VarOrder
 activity	sat/VarOrder.h	/^    const vec<double>&  activity;$/;"	m	struct:VarOrder_lt
-addAndCNF	sat/sat.h	/^      void addAndCNF(Lit lf, const vector<Lit>& faninLit, bool Nand) {$/;"	f	class:SatSolver
 addAndCNF	sat/sat.h	/^      void addAndCNF(Var vf, const vector<Var>& faninVar, bool Nand) {$/;"	f	class:SatSolver
 addBddNode	bdd/bddMgr.cpp	/^BddMgr::addBddNode(const string& str, size_t n)$/;"	f	class:BddMgr
 addBddNode	bdd/bddMgr.cpp	/^BddMgr::addBddNode(unsigned id, size_t n)$/;"	f	class:BddMgr
 addBinary	sat/Solver.h	/^    void    addBinary (Lit p, Lit q)        { addBinary_tmp [0] = p; addBinary_tmp [1] = q; addClause(addBinary_tmp); }$/;"	f	class:Solver
 addBinary_tmp	sat/Solver.h	/^    vec<Lit>            addBinary_tmp;$/;"	m	class:Solver
-addBufCNF	sat/sat.h	/^      void addBufCNF(Lit lf, Lit la, bool Inv) {$/;"	f	class:SatSolver
 addBufCNF	sat/sat.h	/^      void addBufCNF(Var vf, Var va, bool Inv) {$/;"	f	class:SatSolver
 addClause	sat/Solver.h	/^    void    addClause (const vec<Lit>& ps , bool A = true)  { newClause(ps , false , ClauseId_NULL , A); }  $/;"	f	class:Solver
-addConst0CNF	sat/sat.h	/^      void addConst0CNF(Lit lf, bool Const1) {$/;"	f	class:SatSolver
 addConst0CNF	sat/sat.h	/^      void addConst0CNF(Var vf, bool Const1) {$/;"	f	class:SatSolver
 addCut	cir/cirCut.cpp	/^CirCutList::addCut(CirCut* cut, unsigned root){$/;"	f	class:CirCutList
 addCutForce	cir/cirCut.cpp	/^CirCutList::addCutForce(CirCut* cut, unsigned root){$/;"	f	class:CirCutList
@@ -306,7 +307,6 @@ addFanin	cir/cirGate.h	/^   void addFanin(CirGate* g) { _faninGateList.push_back
 addFanout	cir/cirGate.h	/^   void addFanout(CirGate* g) { _fanoutGateList.push_back(g); }$/;"	f	class:CirGate
 addLeaf	cir/cirCut.cpp	/^CirCut::addLeaf(unsigned leaf){$/;"	f	class:CirCut
 addLeafForce	cir/cirCut.cpp	/^CirCut::addLeafForce(unsigned leaf){$/;"	f	class:CirCut
-addOrCNF	sat/sat.h	/^      void addOrCNF(Lit lf, const vector<Lit>& faninLit, bool Nor) {$/;"	f	class:SatSolver
 addOrCNF	sat/sat.h	/^      void addOrCNF(Var vf, const vector<Var>& faninVar, bool Nor) {$/;"	f	class:SatSolver
 addRoot	cir/cirCut.h	/^   void addRoot(unsigned root) { _root.push_back(root); }$/;"	f	class:CirCut
 addRoot	sat/Proof.cpp	/^ClauseId Proof::addRoot(vec<Lit>& cl, bool A)$/;"	f	class:Proof
@@ -314,7 +314,6 @@ addTernary	sat/Solver.h	/^    void    addTernary(Lit p, Lit q, Lit r) { addTerna
 addTernary_tmp	sat/Solver.h	/^    vec<Lit>            addTernary_tmp;$/;"	m	class:Solver
 addUnit	sat/Solver.h	/^    void    addUnit   (Lit p)               { addUnit_tmp   [0] = p; addClause(addUnit_tmp); }$/;"	f	class:Solver
 addUnit_tmp	sat/Solver.h	/^    vec<Lit>            addUnit_tmp;$/;"	m	class:Solver
-addXorCNF	sat/sat.h	/^      void addXorCNF(Lit lf, const vector<Lit>& faninLit, bool Xnor) {$/;"	f	class:SatSolver
 addXorCNF	sat/sat.h	/^      void addXorCNF(Var vf, const vector<Var>& faninVar, bool Xnor) {$/;"	f	class:SatSolver
 analyze	sat/Solver.cpp	/^void Solver::analyze(Clause* confl, vec<Lit>& out_learnt, int& out_btlevel)$/;"	f	class:Solver
 analyzeFinal	sat/Solver.cpp	/^void Solver::analyzeFinal(Clause* confl, bool skip_first)$/;"	f	class:Solver
@@ -323,12 +322,10 @@ analyze_seen	sat/Solver.h	/^    vec<char>           analyze_seen;$/;"	m	class:So
 analyze_stack	sat/Solver.h	/^    vec<Lit>            analyze_stack;$/;"	m	class:Solver
 analyze_tmpbin	sat/Solver.h	/^    Clause*             analyze_tmpbin;$/;"	m	class:Solver
 analyze_toclear	sat/Solver.h	/^    vec<Lit>            analyze_toclear;$/;"	m	class:Solver
-assertProperty	sat/sat.h	/^      void assertProperty(Lit prop, bool val) {$/;"	f	class:SatSolver
 assertProperty	sat/sat.h	/^      void assertProperty(Var prop, bool val) {$/;"	f	class:SatSolver
 assigns	sat/Solver.h	/^    vec<char>           assigns;          \/\/ The current assignments (lbool:s stored as char:s).$/;"	m	class:Solver
 assigns	sat/VarOrder.h	/^    const vec<char>&    assigns;     \/\/ var->val. Pointer to external assignment table.$/;"	m	class:VarOrder
 assume	sat/Solver.cpp	/^bool Solver::assume(Lit p) {$/;"	f	class:Solver
-assumeProperty	sat/sat.h	/^      void assumeProperty(Lit prop, bool val) {$/;"	f	class:SatSolver
 assumeProperty	sat/sat.h	/^      void assumeProperty(Var prop, bool val) {$/;"	f	class:SatSolver
 assumeRelease	sat/sat.h	/^      void assumeRelease() { _assump.clear(); }$/;"	f	class:SatSolver
 assumpSolve	sat/sat.h	/^      bool assumpSolve() { return _solver->solve(_assump); }$/;"	f	class:SatSolver
@@ -355,7 +352,7 @@ check	sat/Solver.h	/^inline void check(bool expr) { assert(expr); }$/;"	f
 check	util/myHash.h	/^   bool check(const HashKey& k, HashData& n) const {$/;"	f	class:Hash
 check	util/myHashMap.h	/^   bool check(const HashNode& d) const { $/;"	f	class:HashMap
 check	util/myHashSet.h	/^   bool check(const Data& d) const {$/;"	f	class:HashSet
-checkFec	cir/cirSim.cpp	/^CirMgr::checkFec(const unsigned *v, const unsigned& outputBit)$/;"	f	class:CirMgr
+checkFec	cir/cirSim.cpp	/^CirMgr::checkFec(const unsigned *v)$/;"	f	class:CirMgr
 checkIteTerminal	bdd/bddMgr.cpp	/^BddMgr::checkIteTerminal$/;"	f	class:BddMgr
 checkMem	util/myUsage.h	/^   double checkMem() const {$/;"	f	class:MyUsage
 checkNameDeclared	cir/cirMgr.cpp	/^CirMgr::checkNameDeclared(const string& name) const {$/;"	f	class:CirMgr
@@ -442,6 +439,7 @@ forceInsert	util/myHash.h	/^   void forceInsert(const HashKey& k, const HashData
 fp	sat/Proof.h	/^    File            fp;$/;"	m	class:Proof
 fp_name	sat/Proof.h	/^    cchar*          fp_name;$/;"	m	class:Proof
 fpos	sat/Proof.h	/^    int64           fpos;$/;"	m	class:Proof
+genAllCutList	cir/cirMgr.cpp	/^CirMgr::genAllCutList(unsigned k){$/;"	f	class:CirMgr
 genCNF	cir/cirGate.cpp	/^CirAndGate::genCNF(SatSolver& s){$/;"	f	class:CirAndGate
 genCNF	cir/cirGate.cpp	/^CirBufGate::genCNF(SatSolver& s){$/;"	f	class:CirBufGate
 genCNF	cir/cirGate.cpp	/^CirConst0Gate::genCNF(SatSolver& s){$/;"	f	class:CirConst0Gate
@@ -454,8 +452,10 @@ genCutList	cir/cirCut.cpp	/^CirCutList::genCutList(const CirCutList& cutList0, $
 genCutList	cir/cirCut.cpp	/^CirCutList::genCutList(unsigned root){$/;"	f	class:CirCutList
 genCutList	cir/cirGate.cpp	/^CirConst0Gate::genCutList(){$/;"	f	class:CirConst0Gate
 genCutList	cir/cirGate.cpp	/^CirGate::genCutList(){$/;"	f	class:CirGate
+genCutList	cir/cirGate.cpp	/^CirPiGate::genCutList(){$/;"	f	class:CirPiGate
 genGateFunc	cir/cirGate.cpp	/^CirConst0Gate::genGateFunc(){$/;"	f	class:CirConst0Gate
 genGateFunc	cir/cirGate.cpp	/^CirGate::genGateFunc(){$/;"	f	class:CirGate
+genGateFunc	cir/cirGate.cpp	/^CirPiGate::genGateFunc(){$/;"	f	class:CirPiGate
 genPattern	cir/cirSim.cpp	/^CirMgr::genPattern(const string& fileName)$/;"	f	class:CirMgr
 genProofModel	cir/cirCEC.cpp	/^CirMgr::genProofModel(SatSolver& s)$/;"	f	class:CirMgr
 getAllCubes	bdd/bddNode.cpp	/^BddNode::getAllCubes() const$/;"	f	class:BddNode
@@ -471,6 +471,7 @@ getCube	bdd/bddNode.cpp	/^BddNode::getCube(size_t ith) const$/;"	f	class:BddNode
 getCubeRecur	bdd/bddNode.cpp	/^BddNode::getCubeRecur$/;"	f	class:BddNode
 getCut	cir/cirCut.h	/^   CirCut* getCut() const { return _cut; }$/;"	f	class:CirCutV
 getCutList	cir/cirGate.h	/^	CirCutList&  getCutList(){ return _cutList; }$/;"	f	class:CirGate
+getDfsOrder	cir/cirGate.h	/^   unsigned getDfsOrder() const { return _dfsOrder; }$/;"	f	class:CirGate
 getEqGate	cir/cirGate.h	/^   CirGate*     getEqGate() const { return _eqGate; }$/;"	f	class:CirGate
 getFaninGate	cir/cirGate.h	/^   CirGate* getFaninGate(unsigned idx) const { return _faninGateList[idx]; }$/;"	f	class:CirGate
 getFaninId	cir/cirGate.h	/^   unsigned getFaninId  (unsigned idx) const { return _faninIdList[idx]; }$/;"	f	class:CirGate
@@ -498,12 +499,11 @@ getLeft	bdd/bddNode.h	/^   const BddNode& getLeft() const { return _left; }$/;"	
 getLeftCofactor	bdd/bddNode.cpp	/^BddNode::getLeftCofactor(unsigned i) const$/;"	f	class:BddNode
 getLevel	bdd/bddNode.cpp	/^BddNode::getLevel() const$/;"	f	class:BddNode
 getLevel	bdd/bddNode.h	/^   unsigned getLevel() const { return _level; }$/;"	f	class:BddNodeInt
-getLit	cir/cirGate.h	/^   Lit          getLit() const { return _lit; }$/;"	f	class:CirGate
 getMode	sat/File.h	/^    FileMode getMode(void) {$/;"	f	class:File
 getName	cir/cirGate.h	/^   string getName() const { return _name; }$/;"	f	class:CirGate
 getNumCubes	bdd/bddMgr.cpp	/^BddMgr::getNumCubes(const BddNode& n)$/;"	f	class:BddMgr
 getNumSupports	bdd/bddMgr.h	/^   size_t getNumSupports() const { return _supports.size(); }$/;"	f	class:BddMgr
-getPiSimFromFile	cir/cirSim.cpp	/^CirMgr::getPiSimFromFile(ifstream& patternFile, unsigned* v, unsigned& count)$/;"	f	class:CirMgr
+getPiSimFromFile	cir/cirSim.cpp	/^CirMgr::getPiSimFromFile(ifstream& patternFile, unsigned* v)$/;"	f	class:CirMgr
 getRefCount	bdd/bddNode.cpp	/^BddNode::getRefCount() const$/;"	f	class:BddNode
 getRefCount	bdd/bddNode.h	/^   unsigned getRefCount() const { return _refCount; }$/;"	f	class:BddNodeInt
 getRight	bdd/bddNode.cpp	/^BddNode::getRight() const$/;"	f	class:BddNode
@@ -516,6 +516,7 @@ getSupport	bdd/bddMgr.h	/^   const BddNode& getSupport(size_t i) const { return 
 getUInt	sat/File.cpp	/^uint64 getUInt(File& in)$/;"	f
 getValue	cir/cirSim.cpp	/^   unsigned getValue(){ return _value; }$/;"	f	class:SimPValue
 getValue	sat/sat.h	/^      int getValue(Var v) const {$/;"	f	class:SatSolver
+getVar	cir/cirGate.h	/^   Var          getVar() const { return _var; }$/;"	f	class:CirGate
 getmin	sat/Heap.h	/^    int  getmin() {$/;"	f	class:Heap
 grow	sat/Global.h	/^void vec<T>::grow(int min_cap) {$/;"	f	class:vec
 growTo	sat/Global.h	/^void vec<T>::growTo(int size) {$/;"	f	class:vec
@@ -542,7 +543,7 @@ init	util/myHash.h	/^   void init(size_t b) {$/;"	f	class:Hash
 init	util/myHash.h	/^   void init(size_t s) { reset(); _size = s; _cache = new CacheNode[s]; }$/;"	f	class:Cache
 init	util/myHashMap.h	/^   void init(size_t b) {$/;"	f	class:HashMap
 init	util/myHashSet.h	/^   void init(size_t b) {$/;"	f	class:HashSet
-initFec	cir/cirSim.cpp	/^CirMgr::initFec(const unsigned* v, const unsigned& outputBit)$/;"	f	class:CirMgr
+initFec	cir/cirSim.cpp	/^CirMgr::initFec(const unsigned* v)$/;"	f	class:CirMgr
 initHash	cir/cirCut.cpp	/^CirCutList::initHash(unsigned k)$/;"	f	class:CirCutList
 initialize	sat/sat.h	/^      void initialize() {$/;"	f	class:SatSolver
 insert	bdd/myHash.h	/^   bool insert(const HashKey& k, const HashData& d) {$/;"	f	class:Hash
@@ -660,6 +661,7 @@ operator ()	bdd/bddMgr.h	/^   size_t operator() () const { return ((_f << 3)+(_g
 operator ()	bdd/bddMgr.h	/^   size_t operator() () const { return ((_l << 3) + (_r << 3) + _i); }$/;"	f	class:BddHashKey
 operator ()	bdd/bddNode.h	/^   size_t operator () () const { return _nodeV; }$/;"	f	class:BddNode
 operator ()	cir/cirCut.cpp	/^CirCutV::operator () () const {$/;"	f	class:CirCutV
+operator ()	cir/cirSim.cpp	/^   bool operator () (IdList const *fecGrp1, IdList const *fecGrp2) const {$/;"	f	class:CmpFecGrp
 operator ()	cir/cirSim.cpp	/^   unsigned operator () () const { $/;"	f	class:SimPValue
 operator ()	sat/Solver.cpp	/^    bool operator () (Lit p, Lit q) { return trail_pos[var(p)] > trail_pos[var(q)]; }$/;"	f	class:lastToFirst_lt
 operator ()	sat/Solver.cpp	/^struct reduceDB_lt { bool operator () (Clause* x, Clause* y) { return x->size() > 2 && (y->size() == 2 || x->activity() < y->activity()); } };$/;"	f	struct:reduceDB_lt
@@ -826,17 +828,17 @@ selectionSort	sat/Sort.h	/^void selectionSort(T* array, int size, LessThan lt)$/
 setBddMgr	bdd/bddNode.h	/^   static void setBddMgr(BddMgr* m) { _BddMgr = m; }$/;"	f	class:BddNode
 setBoss	cir/cirCut.h	/^   void setBoss(CirCut* cut){ _boss = cut; }$/;"	f	class:CirCut
 setBounds	sat/Heap.h	/^    void setBounds (int size) { assert(size >= 0); indices.growTo(size,0); }$/;"	f	class:Heap
+setDfsOrder	cir/cirGate.h	/^   void setDfsOrder(unsigned order) { _dfsOrder = order; }$/;"	f	class:CirGate
 setEqGate	cir/cirGate.h	/^   void         setEqGate(CirGate* g) { _eqGate = g; }$/;"	f	class:CirGate
 setFecGrp	cir/cirGate.h	/^   void             setFecGrp(IdList* p) { _fecGrp=p; }$/;"	f	class:CirGate
 setGateFunc	cir/cirGate.cpp	/^CirGate::setGateFunc(BddNode func){$/;"	f	class:CirGate
-setLit	cir/cirGate.h	/^   void         setLit(Lit lit) { _lit=lit; }$/;"	f	class:CirGate
 setMaxCutSize	cir/cirCut.h	/^	static void setMaxCutSize(int s){ _maxCutSize = s; }$/;"	f	class:CirCut
 setMemUsage	util/myUsage.h	/^   void setMemUsage() { _currentMem = checkMem() - _initMem; }$/;"	f	class:MyUsage
 setMode	sat/File.h	/^    void setMode(FileMode m) {$/;"	f	class:File
 setPi	cir/cirGate.h	/^   void setPi(){ _isPi = true; }$/;"	f	class:CirGate
 setPo	cir/cirGate.h	/^   void setPo(){ _isPo = true; }$/;"	f	class:CirGate
 setTimeUsage	util/myUsage.h	/^   void setTimeUsage() {$/;"	f	class:MyUsage
-setVar	cir/cirGate.h	/^   void         setVar(Var v) { _lit=Lit(v); }$/;"	f	class:CirGate
+setVar	cir/cirGate.h	/^   void         setVar(Var v) { _var=v; }$/;"	f	class:CirGate
 setVisit	cir/cirCut.h	/^   void setVisit(){ _visited = true; }$/;"	f	class:CirCut
 setVisited	bdd/bddNode.h	/^   void setVisited() { _visited = 1; }$/;"	f	class:BddNodeInt
 set_keypress	util/myGetChar.cpp	/^static void set_keypress(void)$/;"	f	file:
@@ -875,7 +877,7 @@ sort	sat/Sort.h	/^template <class T, class LessThan> void sort(vec<T>& v, LessTh
 sort	sat/Sort.h	/^template <class T> static inline void sort(T* array, int size) {$/;"	f
 sort	sat/Sort.h	/^template <class T> void sort(vec<T>& v) {$/;"	f
 sort	sat/Sort.h	/^void sort(T* array, int size, LessThan lt, double& seed)$/;"	f
-sortFecGrp	cir/cirSim.cpp	/^CirMgr::sortFecGrp(IdList* oldFecGrp, vector <IdList*>& newGrps)$/;"	f	class:CirMgr
+sortFecGrp	cir/cirSim.cpp	/^CirMgr::sortFecGrp(IdList* oldFecGrp, vector<IdList*>& newGrps)$/;"	f	class:CirMgr
 sortUnique	sat/Sort.h	/^template <class T, class LessThan> void sortUnique(vec<T>& v, LessThan lt) {$/;"	f
 sortUnique	sat/Sort.h	/^template <class T> static inline void sortUnique(T* array, int& size) {$/;"	f
 sortUnique	sat/Sort.h	/^template <class T> void sortUnique(vec<T>& v) {$/;"	f
@@ -940,6 +942,7 @@ watches	sat/Solver.h	/^    vec<vec<Clause*> >  watches;          \/\/ 'watches[l
 write	bdd/myHash.h	/^   void write(const CacheKey& k, const CacheData& d) {$/;"	f	class:Cache
 write	util/myHash.h	/^   void write(const CacheKey& k, const CacheData& d) {$/;"	f	class:Cache
 writeCircuit	cir/cirMgr.cpp	/^CirMgr::writeCircuit(const string& filename, bool design) const {$/;"	f	class:CirMgr
+writeFECPairs	cir/cirMgr.cpp	/^CirMgr::writeFECPairs(const string& filename) const$/;"	f	class:CirMgr
 x	sat/SolverTypes.h	/^    int     x;$/;"	m	class:Lit
 xfree	sat/Global.h	/^template<class T> static inline void xfree(T *ptr) {$/;"	f
 xmalloc	sat/Global.h	/^template<class T> static inline T* xmalloc(size_t size) {$/;"	f
