@@ -46,6 +46,8 @@ public:
 
    // Member functions about cut
    void genAllCutList(unsigned k);
+   void printAllCutList() const ;
+   void writeAllCutList(const string& filename) const ;
    
    CirGate* getGateById(unsigned id) const { return _gateList[id]; }
 

@@ -111,12 +111,14 @@ public:
 	void clear(){ _cuts.clear(); }
 	bool addCutForce(CirCut* cut, unsigned root);
 	bool addCut     (CirCut* cut, unsigned root);
+   void addUnitCut(unsigned root);
    void removeRedundant();
+   void removeUnitCut();
    void replaceByHash(unsigned root);
 	void deleteCutById(unsigned id);
-   void genCutList(unsigned root);
-	void genCutList(CirCutList& cutList, unsigned root);
-	void genCutList(const CirCutList& cutList0, const CirCutList& cutList1, unsigned root);
+   void genCutList(unsigned root, bool addRoot);
+	void genCutList(CirCutList& cutList, unsigned root, bool addRoot);
+	void genCutList(const CirCutList& cutList0, const CirCutList& cutList1, unsigned root, bool addRoot);
 
    static void initHash(unsigned k);
    static void deleteHash();

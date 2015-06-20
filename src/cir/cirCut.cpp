@@ -248,6 +248,16 @@ CirCutList::addCut(CirCut* cut, unsigned root){
 }
 
 void
+CirCutList::addUnitCut(unsigned root){
+#ifndef NO_HASH
+   CirCut* cut = new CirCut(root);
+   if(!addCutForce(cut, root)) delete cut;
+#else
+   addCutForce(new CirCut(root), root);
+#endif
+}
+
+void
 CirCutList::removeRedundant(){
    unsigned n = _cuts.size(), i, j, k;
    for(i=0, j=0; i<n; ++i){
@@ -259,6 +269,15 @@ CirCutList::removeRedundant(){
          }
       }
       if(k == j) _cuts[j++] = _cuts[i];
+   }
+   _cuts.resize(j);
+}
+
+void
+CirCutList::removeUnitCut(){
+   unsigned n = _cuts.size(), i, j;
+   for(i=0, j=0; i<n; ++i){
+      if(_cuts[i]->size() > 1) _cuts[j++] = _cuts[i];
    }
    _cuts.resize(j);
 }
@@ -288,33 +307,25 @@ CirCutList::deleteCutById(unsigned id){
 }
 
 void
-CirCutList::genCutList(unsigned root){
+CirCutList::genCutList(unsigned root, bool addRoot){
    _cuts.clear();
-#ifndef NO_HASH
-   CirCut* cut = new CirCut(root);
-   if(!addCutForce(cut, root)) delete cut;
-#else
-   addCutForce(new CirCut(root), root);
-#endif
+   if(addRoot) addUnitCut(root);
 }
 
 void
-CirCutList::genCutList(CirCutList& cutList, unsigned root){
-	_cuts.clear();
+CirCutList::genCutList(CirCutList& cutList, unsigned root, bool addRoot){
+   _cuts.clear();
 #ifndef NO_HASH
-	for(unsigned i=0, n=cutList.size(); i<n; ++i){
-      if(cutList[i]->size() > 1)
-         addCutForce(cutList[i], root);
-   }
-   CirCut* cut = new CirCut(root);
-   if(!addCutForce(cut, root)) delete cut;
+	for(unsigned i=0, n=cutList.size(); i<n; ++i)
+      addCutForce(cutList[i], root);
 #else
-	for(unsigned i=0, n=cutList.size(); i<n; ++i){
-      if(cutList[i]->size() > 1)
-         addCutForce(new CirCut(*cutList[i]), root);
-   }
-   addCutForce(new CirCut(root), root);
+	for(unsigned i=0, n=cutList.size(); i<n; ++i)
+      addCutForce(new CirCut(*cutList[i]), root);
 #endif
+   if(addRoot){
+      removeUnitCut();
+      addUnitCut(root);
+   }
    sort(_cuts.begin(), _cuts.end(), cutCmp);
 }
 
@@ -326,24 +337,19 @@ CirCutList::genCutList(CirCutList& cutList, unsigned root){
 void
 CirCutList::genCutList(const CirCutList& cutList0, 
 		                 const CirCutList& cutList1, 
-							  unsigned root){
+							  unsigned root, bool addRoot){
    CirCut* cut;
 	_cuts.clear();
 	for(unsigned i=0, n0=cutList0.size(); i<n0; ++i){
 		for(unsigned j=0, n1=cutList1.size(); j<n1; ++j){
 			cut = cutList0[i]->merge(cutList1[j]);
-			if(cut != 0){
-            if(cut->size() == 1) delete cut;
-            else if(!addCutForce(cut, root)) delete cut;
-         }
+			if(cut != 0 && !addCutForce(cut, root)) delete cut;
 		}
 	}
-#ifndef NO_HASH
-   cut = new CirCut(root);
-   if(!addCutForce(cut, root)) delete cut;
-#else
-   addCutForce(new CirCut(root), root);
-#endif
+   if(addRoot){ 
+      removeUnitCut();
+      addUnitCut(root);
+   }
    sort(_cuts.begin(), _cuts.end(), cutCmp);
    removeRedundant();
 }

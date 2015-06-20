@@ -25,10 +25,11 @@ main(int argc, char** argv){
       cirMgr -> cec();
       // cout << "====================" << endl;
       // cout << "FEC pairs after CEC" << endl;
-      cirMgr -> writeFECPairs("out.fec");
+      // cirMgr -> writeFECPairs("out.fec");
       // cout << "====================" << endl;
       
-      // cirMgr -> genAllCutList(5);
+      cirMgr -> genAllCutList(4);
+      cirMgr -> writeAllCutList("out.cut");
       cirMgr -> writeCircuit(argv[3], true);
       cirMgr -> writeCircuit(argv[4], false);
    }

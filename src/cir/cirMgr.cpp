@@ -373,11 +373,13 @@ CirMgr::writeFECPairs(const string& filename) const
       }
       fout << endl;
    }
+   fout.close();
 }
 
 // generate cut list for all gates
 void
-CirMgr::genAllCutList(unsigned k){
+CirMgr::genAllCutList(unsigned k)
+{
 	unsigned size = 0;
    CirCutList::initHash(getHashSize(_dfsList.size()*20));
 	CirCut::setMaxCutSize(k);
@@ -388,20 +390,33 @@ CirMgr::genAllCutList(unsigned k){
       size += _dfsList[i]->getCutList().size();
    }    
 	cout << "average number of cuts: " << (double)size/_dfsList.size() << endl;
-
-   // debug
-   /*  
-   for(unsigned i=0, n=_dfsList.size(); i<n; ++i){
-      CirGate* gate = _dfsList[i];
-      cout << "gate " << gate->getId() << ":" << endl;
-      cout << gate->getCutList() << endl;
-   }
-   */
-   cout << endl;
-   // CirCutList::printAllCut();
-   // end debug
 }
 
+void
+CirMgr::printAllCutList() const
+{
+   for(unsigned i=0, n=_dfsList.size(); i<n; ++i){
+      CirGate* gate = _dfsList[i];
+      cout << "gate " << gate->getId() 
+           << " (" << gate->getName() << ") :" << endl;
+      cout << gate->getCutList() << endl;
+   }
+   cout << endl;
+}
+
+void
+CirMgr::writeAllCutList(const string& filename) const
+{
+   ofstream fout(filename.c_str());
+   for(unsigned i=0, n=_dfsList.size(); i<n; ++i){
+      CirGate* gate = _dfsList[i];
+      fout << "gate " << gate->getId() 
+           << " (" << gate->getName() << ") :" << endl;
+      fout << gate->getCutList() << endl;
+   }
+   fout << endl;
+   fout.close();
+}
 
 /**************************************/
 /*   class CirMgr private functions   */

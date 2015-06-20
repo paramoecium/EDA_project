@@ -126,23 +126,24 @@ CirXorGate::genCNF(SatSolver& s){
 // genCutList
 void
 CirGate::genCutList(){
-   _cutList.genCutList(_faninGateList[0]->getCutList(), _id);
+   bool addRoot = (_fecGrp != 0);
    CirCutList tmpCutList;
+   tmpCutList.genCutList(_faninGateList[0]->getCutList(), _id, false);
    for(unsigned i=1, n=_faninGateList.size(); i<n; ++i){
-      tmpCutList.genCutList(_faninGateList[0]->getCutList(),
-                            _faninGateList[1]->getCutList(), _id);
       _cutList = tmpCutList;
+      tmpCutList.genCutList(_cutList, _faninGateList[i]->getCutList(), _id, false);
    }
+   _cutList.genCutList(tmpCutList, _id, addRoot);
 }
 
 void
 CirConst0Gate::genCutList(){
-   _cutList.genCutList(_id);
+   _cutList.genCutList(_id, false);
 }
 
 void
 CirPiGate::genCutList(){
-   _cutList.genCutList(_id);
+   _cutList.genCutList(_id, false);
 }
 
 void
