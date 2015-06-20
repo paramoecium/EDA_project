@@ -367,7 +367,7 @@ CirMgr::writeFECPairs(const string& filename) const
       head = _fecGrps[i]->at(0);
       for (unsigned j=0, m=_fecGrps[i]->size(); j<m; ++j){
          current = _fecGrps[i]->at(j);
-         if (current%2 != head%2) cout << "!";
+         if (current%2 != head%2) fout << "!";
          if (j) fout << " ";
          fout << getGateById(current/2)->getName();
       }

@@ -29,8 +29,8 @@ main(int argc, char** argv){
       // cout << "====================" << endl;
       
       // cirMgr -> genAllCutList(5);
-      // cirMgr -> writeCircuit(argv[3], true);
-      // cirMgr -> writeCircuit(argv[4], false);
+      cirMgr -> writeCircuit(argv[3], true);
+      cirMgr -> writeCircuit(argv[4], false);
    }
    else {
       cerr << "Error: illegal number of argument (" << argc << ")!!\n";
