@@ -56,6 +56,7 @@ public:
    virtual void genCNF(SatSolver&) = 0;
    void         setVar(Var v) { _var=v; }
    Var          getVar() const { return _var; }
+   IdList*      getFecGrp() const { return _fecGrp; }
    void         setEqGate(CirGate* g) { _eqGate = g; }
    CirGate*     getEqGate() const { return _eqGate; }
 
@@ -65,6 +66,7 @@ public:
    void         setGateFunc(BddNode);
 	virtual void genGateFunc();
 	BddNode      getGateFunc() const { return _tmpFunc; }
+   bool getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& cut1, CirCut*& cut2);
 
 protected:
    // bosic information

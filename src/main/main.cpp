@@ -28,8 +28,9 @@ main(int argc, char** argv){
       // cirMgr -> writeFECPairs("out.fec");
       // cout << "====================" << endl;
       
-      cirMgr -> genAllCutList(4);
+      cirMgr -> genAllCutList(6);
       cirMgr -> writeAllCutList("out.cut");
+      cirMgr -> mapCut();
       cirMgr -> writeCircuit(argv[3], true);
       cirMgr -> writeCircuit(argv[4], false);
    }

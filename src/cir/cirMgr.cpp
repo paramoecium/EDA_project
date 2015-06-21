@@ -41,20 +41,22 @@ static string toConstant(const string& name){
    return "1'b1";
 }
 
+static bool inSameFecGroup(const CirGate* gate1, const CirGate* gate2){
+   return (gate1->getFecGrp() != NULL &&
+           gate1->getFecGrp() == gate2->getFecGrp());
+}
+
 /*************************************/
 /*   class CirMgr public functions   */
 /*************************************/
 CirMgr::CirMgr(): _varNum(0) {
-   unsigned id;
    createIdByName("1'b0");
    createGate(GATE_CONST0, "1'b0", StrList());
    createIdByName("1'b1");
    createGate(GATE_CONST1, "1'b1", StrList());
 
-   id = getIdByName("1'b0");
-   getGateById(id)->setPi();
-   id = getIdByName("1'b1");
-   getGateById(id)->setPi();
+   getGateByName("1'b0")->setPi();
+   getGateByName("1'b1")->setPi();
 }  
 
 bool
@@ -70,7 +72,6 @@ CirMgr::readCircuit(const string& filename, bool design) {
    vector<char> sep, stop; // seperating chars / stop chars
    vector<string> tokens;  // parsed string tokens
    string prefixName = (design? "design_A_" : "design_B_");
-   unsigned id;
    
    // initialize seperating chars
    sep.push_back(' ');
@@ -107,15 +108,13 @@ CirMgr::readCircuit(const string& filename, bool design) {
             if (design){
                createIdByName(tokens[i]);
                createPI(tokens[i]);
-               id = getIdByName(tokens[i]);
-               getGateById(id)->setPi();
+               getGateByName(tokens[i])->setPi();
             }
             vector<string> bufFanin;
             bufFanin.push_back(tokens[i]);
             createIdByName(prefixName + tokens[i]);
             createGate(GATE_BUF, prefixName + tokens[i], bufFanin);
-            id = getIdByName(prefixName + tokens[i]);
-            getGateById(id)->setPi();
+            getGateByName(prefixName + tokens[i])->setPi();
          }
       }
       // "output" <out1 name> <out2 name> ...
@@ -335,7 +334,8 @@ CirMgr::buildDfsList(){
 }
 
 void 
-CirMgr::printNetlist() const{
+CirMgr::printNetlist() const
+{
    for(unsigned i=0, n=_dfsList.size(); i<n; ++i){
       cout << "[" << i << "] " << left << setw(5) << _dfsList[i]->getId();
       _dfsList[i]->printGate();
@@ -381,7 +381,6 @@ void
 CirMgr::genAllCutList(unsigned k)
 {
 	unsigned size = 0;
-   CirCutList::initHash(getHashSize(_dfsList.size()*20));
 	CirCut::setMaxCutSize(k);
 	for(unsigned i=0, n=_dfsList.size(); i<n; ++i){
       // cout << "generating gate " << _dfsList[i]->getGid() << endl;
@@ -418,6 +417,34 @@ CirMgr::writeAllCutList(const string& filename) const
    fout.close();
 }
 
+void
+CirMgr::mapCut()
+{
+   vector<CutPair> pairList;
+   CirGate *gateA, *gateB;
+   string nameA;
+
+   // put all the PO into pairList
+   for(unsigned i=0, n=_poList.size(); i<n; ++i){
+      gateA = getGateById(_poList[i]);
+      nameA = gateA->getName();
+      if(nameA.substr(0, 9) == "design_A_"){
+         gateB = getGateByName("design_B_" + nameA.substr(9));
+         assert(gateB != NULL);
+         pairList.push_back(make_pair(gateA->getId(), gateB->getId()));
+      }
+   }
+
+   for(unsigned i=0, n=pairList.size(); i<n; ++i)
+      cout << pairList[i].first << ", " << pairList[i].second << endl;
+
+   while(pairList.size()){
+      CutPair cp = pairList.back();
+      pairList.pop_back();
+      updatePairList(cp, pairList);
+   }
+}
+
 /**************************************/
 /*   class CirMgr private functions   */
 /**************************************/
@@ -438,12 +465,12 @@ CirMgr::createIdByName(const string& name){
 }
 
 unsigned
-CirMgr::getIdByName(const string& name){
+CirMgr::getIdByName(const string& name) const {
    if(!checkNameDeclared(name)){
       cerr << "gate \"" << name << "\" is not declared!" << endl;
-      return -1;
+      return UINT_MAX;
    }
-   return _varMap[name];
+   return _varMap.at(name);
 }
 
 // used in buildDfsList
@@ -456,3 +483,25 @@ CirMgr::dfs(CirGate* gate){
    _dfsList.push_back(gate);
    gate->setDfsOrder(_dfsList.size());
 }
+
+// cut mapping
+void
+CirMgr::updatePairList(CutPair cp, vector<CutPair>& pairList)
+{
+   CirGate* gate1 = getGateById(cp.first);
+   CirGate* gate2 = getGateById(cp.second);
+   CirCut *cut1, *cut2;
+   assert(gate1 != NULL && gate2 != NULL);
+   if(inSameFecGroup(gate1, gate2)){
+      if(gate1->getMatchCut(gate2->getCutList(), gate2->getId(), cut1, cut2)){
+         assert(cut1->size() == cut2->size());
+         for(unsigned i=0, n=cut1->size(); i<n; ++i)
+            pairList.push_back(make_pair(cut1->getLeaf(i), cut2->getLeaf(i)));
+      }
+   }
+   else{ // only happen when gate1/gate2 are POs
+      
+   }
+}
+
+

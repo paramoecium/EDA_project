@@ -3,12 +3,15 @@
 
 #include <vector>
 #include <string>
+#include <utility>
 
 class CirGate;
 
 typedef std::vector<CirGate*>    GateList;
 typedef std::vector<unsigned>    IdList;
 typedef std::vector<std::string> StrList;
+
+typedef std::pair<unsigned, unsigned> CutPair;
 
 enum GateType{
    GATE_CONST0,

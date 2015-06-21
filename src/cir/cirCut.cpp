@@ -4,8 +4,6 @@
 #include "cirGate.h"
 #include "myHashSet.h"
 
-// #define NO_HASH
-
 extern CirMgr* cirMgr;
 extern BddMgr* bddMgr;
 
@@ -181,27 +179,6 @@ CirCut::addLeaf(unsigned leaf){
 	return addLeafForce(leaf);
 }
 
-/*********************************************/
-/*   Class CirCutV public member functions   */
-/*********************************************/
-int
-CirCutV::operator () () const {
-   int ret = 0;
-   for(unsigned i=0, n=_cut->size(); i<n; ++i)
-      ret = (ret*1237 + _cut->getLeaf(i)) % 1000001;
-   return ret;
-}
-
-bool 
-CirCutV::operator == (const CirCutV& cutV) const {
-   return *getCut() == *(cutV.getCut());
-}
-
-/************************************************/
-/*   Class CirCutList static member variables   */
-/************************************************/
-HashSet<CirCutV>* CirCutList::_hashSet = 0;
-
 /************************************************/
 /*   Class CirCutList public member functions   */
 /************************************************/
@@ -210,24 +187,13 @@ CirCutList::CirCutList(){
 }
 
 CirCutList::~CirCutList(){
-	// for(unsigned i=0, n=_cuts.size(); i<n; ++i)
-	// 	delete _cuts[i];
+	for(unsigned i=0, n=_cuts.size(); i<n; ++i)
+		delete _cuts[i];
 }
 
 bool
 CirCutList::addCutForce(CirCut* cut, unsigned root){
    bool ret = true;
-#ifndef NO_HASH
-   CirCutV cutV(cut);
-   if(_hashSet->query(cutV)){
-      if(cutV.getCut()->getBoss() != cutV.getCut()) return false;
-      cut = cutV.getCut()->getBoss();
-      ret = false;
-   }
-   else{
-      _hashSet->insert(cutV);
-   }
-#endif
    cut->addRoot(root);
    _cuts.push_back(cut);
    return ret;
@@ -249,12 +215,7 @@ CirCutList::addCut(CirCut* cut, unsigned root){
 
 void
 CirCutList::addUnitCut(unsigned root){
-#ifndef NO_HASH
-   CirCut* cut = new CirCut(root);
-   if(!addCutForce(cut, root)) delete cut;
-#else
    addCutForce(new CirCut(root), root);
-#endif
 }
 
 void
@@ -283,23 +244,6 @@ CirCutList::removeUnitCut(){
 }
 
 void
-CirCutList::replaceByHash(unsigned root){
-#ifndef NO_HASH
-   for(unsigned i=0, n=_cuts.size(); i<n; ++i){
-      CirCutV cutV(_cuts[i]);
-      if(_hashSet->query(cutV)){
-         delete _cuts[i];
-         _cuts[i] = cutV.getCut();
-         _cuts[i]->addRoot(root);
-      }
-      else{
-         _hashSet->insert(cutV);
-      }
-   }
-#endif
-}
-
-void
 CirCutList::deleteCutById(unsigned id){
    unsigned n = _cuts.size();
    _cuts[id] = _cuts[n-1];
@@ -315,13 +259,8 @@ CirCutList::genCutList(unsigned root, bool addRoot){
 void
 CirCutList::genCutList(CirCutList& cutList, unsigned root, bool addRoot){
    _cuts.clear();
-#ifndef NO_HASH
-	for(unsigned i=0, n=cutList.size(); i<n; ++i)
-      addCutForce(cutList[i], root);
-#else
 	for(unsigned i=0, n=cutList.size(); i<n; ++i)
       addCutForce(new CirCut(*cutList[i]), root);
-#endif
    if(addRoot){
       removeUnitCut();
       addUnitCut(root);
@@ -352,49 +291,6 @@ CirCutList::genCutList(const CirCutList& cutList0,
    }
    sort(_cuts.begin(), _cuts.end(), cutCmp);
    removeRedundant();
-}
-
-void
-CirCutList::initHash(unsigned k)
-{
-#ifndef NO_HASH
-   deleteHash();
-   _hashSet = new HashSet<CirCutV>(k);
-#endif
-}
-
-void
-CirCutList::deleteHash()
-{
-#ifndef NO_HASH
-   if(_hashSet != 0){
-      HashSet<CirCutV>::iterator it;
-      for(it=_hashSet->begin(); it!=_hashSet->end(); ++it)
-         delete (*it).getCut();
-      
-      delete _hashSet;
-      _hashSet = 0;
-   }
-#endif
-}
-
-void
-CirCutList::printAllCut()
-{
-#ifndef NO_HASH
-   cout << "all cuts:" << endl;
-   if(_hashSet != 0){
-      HashSet<CirCutV>::iterator it;
-      for(it=_hashSet->begin(); it!=_hashSet->end(); ++it){
-         CirCut* cut = (*it).getCut();
-         cout << *cut;
-         cout << "[ ";
-         for(unsigned i=0, n=cut->rootSize(); i<n; ++i)
-            cout << cut->getRoot(i) << (i==n-1? "" : ",") << " ";
-         cout << "]" << endl;
-      }
-   }
-#endif
 }
 
 ostream& operator << (ostream& os, const CirCutList& cutList){

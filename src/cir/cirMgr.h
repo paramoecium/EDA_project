@@ -44,18 +44,22 @@ public:
    void printFECPairs() const ;
    void writeFECPairs(const string& filename) const ;
 
-   // Member functions about cut
+   // Member functions about cut mapping
    void genAllCutList(unsigned k);
    void printAllCutList() const ;
    void writeAllCutList(const string& filename) const ;
+   void mapCut();
    
    CirGate* getGateById(unsigned id) const { return _gateList[id]; }
+   CirGate* getGateByName(const string& name) const {
+      return getGateById(getIdByName(name)); 
+   }
 
 private:
    // gate id and name mapping
-   bool     checkNameDeclared(const string& name) const;
+   bool     checkNameDeclared(const string& name) const ;
    void     createIdByName   (const string& name);
-   unsigned getIdByName      (const string& name);
+   unsigned getIdByName      (const string& name) const ;
    
    // used in buildDfsList
    void dfs(CirGate* gate);
@@ -74,6 +78,9 @@ private:
    void genProofModel(SatSolver& s);
    bool solveGateEqBySat(SatSolver& s, CirGate* g1, CirGate* g2, bool inverse);
    void solveBuf();
+
+   // Member functions about cut mapping
+   void updatePairList(CutPair cp, vector<CutPair>& pairList);
 
    string                  _moduleName[2];
    vector<string>          _ioNameList[2];

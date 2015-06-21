@@ -78,23 +78,6 @@ private:
 	// TODO: use array instead of vector for _leaf?
 };
 
-/*********************/
-/*   Class CirCutV   */
-/*********************/
-class CirCutV
-{
-public:
-   CirCutV(CirCut* cut): _cut(cut) {}
-
-   CirCut* getCut() const { return _cut; }
-   
-   int operator () () const ;
-   bool operator == (const CirCutV&) const ;
-
-private:
-   CirCut* _cut;
-};
-
 /************************/
 /*   Class CirCutList   */
 /************************/
@@ -120,16 +103,10 @@ public:
 	void genCutList(CirCutList& cutList, unsigned root, bool addRoot);
 	void genCutList(const CirCutList& cutList0, const CirCutList& cutList1, unsigned root, bool addRoot);
 
-   static void initHash(unsigned k);
-   static void deleteHash();
-   static void printAllCut();
-	
    friend ostream& operator << (ostream&, const CirCutList&);
 
 private:	
 	vector<CirCut*> _cuts;
-
-   static HashSet<CirCutV>* _hashSet;
 };
 
 #endif // CIR_CUT_H
