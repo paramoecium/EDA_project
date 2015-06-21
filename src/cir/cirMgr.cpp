@@ -530,7 +530,7 @@ CirMgr::updatePairList(CutPair cp, vector<CutPair>& pairList)
 void 
 CirMgr::nonEqAddCut()
 {
-   ++dfsFlag;
+   CirGate::incDfsFlag();
    for (unsigned i=0, n=_poList.size(); i<n; ++i)
       dfsAddCut(getGateById(_poList[i]));
 }
