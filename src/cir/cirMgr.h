@@ -51,6 +51,7 @@ public:
    void printAllCutList() const ;
    void writeAllCutList(const string& filename) const ;
    void mapCut();
+   void nonEqAddCut();
    
    CirGate* getGateById(unsigned id) const { return _gateList[id]; }
    CirGate* getGateByName(const string& name) const {
@@ -83,6 +84,7 @@ private:
 
    // Member functions about cut mapping
    void updatePairList(CutPair cp, vector<CutPair>& pairList);
+   void dfsAddCut(CirGate*);
 
    string                  _moduleName[2];
    vector<string>          _ioNameList[2];
