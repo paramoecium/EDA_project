@@ -128,24 +128,9 @@ CirCut::genCutFunc()
       CirGate* gate = cirMgr->getGateById(getLeaf(i));
       gate->setGateFunc(bddMgr->getSupport(i+1));
    }
-   _func.resize(rootSize());
-   sort(_root.begin(), _root.end());
-   for(unsigned i=0, n=rootSize(); i<n; ++i){
-      CirGate* gate = cirMgr->getGateById(getRoot(i));
-      gate->genGateFunc();
-      _func[i] = gate->getGateFunc();
-   }
-}
-
-// TODO: change to binary search
-BddNode
-CirCut::getFuncByRoot(unsigned root) const {
-   for(int idx=0, n=_root.size(); idx<n; ++idx){
-      if(_root[idx] == root)
-         return getFuncByIdx(idx);
-   }
-   cerr << "cannot find root " << root << endl;
-   return bddMgr->getSupport(0);
+   CirGate* gate = cirMgr->getGateById(getRoot());
+   gate->genGateFunc();
+   setFunc(gate->getGateFunc());
 }
 
 ostream& operator << (ostream& os, const CirCut& cut){
@@ -194,7 +179,7 @@ CirCutList::~CirCutList(){
 bool
 CirCutList::addCutForce(CirCut* cut, unsigned root){
    bool ret = true;
-   cut->addRoot(root);
+   cut->setRoot(root);
    _cuts.push_back(cut);
    return ret;
 }
@@ -223,11 +208,7 @@ CirCutList::removeRedundant(){
    unsigned n = _cuts.size(), i, j, k;
    for(i=0, j=0; i<n; ++i){
       for(k=0; k<j; ++k){
-         if(_cuts[k]->dominateCut(_cuts[i])){
-            _cuts[i]->setBoss(_cuts[k]);
-            // cout << "deleted: " << *_cuts[i] << endl;
-            break;
-         }
+         if(_cuts[k]->dominateCut(_cuts[i])) break;
       }
       if(k == j) _cuts[j++] = _cuts[i];
    }

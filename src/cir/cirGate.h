@@ -69,7 +69,7 @@ public:
    bool getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& cut1, CirCut*& cut2);
 
 protected:
-   // bosic information
+   // basic information
    unsigned          _id;
    string            _name;
    bool              _isPi, _isPo;

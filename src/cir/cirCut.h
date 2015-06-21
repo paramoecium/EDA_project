@@ -27,9 +27,8 @@ public:
 
 	// unsigned size() const { return _leaf.size(); }
    unsigned size() const { return _sz; }
-   unsigned rootSize() const { return _root.size(); }
-   void addRoot(unsigned root) { _root.push_back(root); }
-	unsigned getRoot(int idx) const { return _root[idx]; }
+   void setRoot(unsigned root) { _root = root; }
+   unsigned getRoot() const { return _root; }
 	unsigned getSign() const { return _sign; }
 	bool     operator == (const CirCut&) const ;
 	unsigned        getLeaf     (int idx) const { return _leaf[idx]; }
@@ -39,21 +38,12 @@ public:
 	CirCut* merge(const CirCut* cut) const ;
 	bool containGateId(unsigned gid) const ;
 	bool dominateCut(const CirCut* cut) const ;
-   void setBoss(CirCut* cut){ _boss = cut; }
-   CirCut* getBoss(){ return _boss==this? _boss : _boss->getBoss(); }
 
 	void genCutFunc();
-	BddNode getFuncByIdx(int idx) const { return _func[idx]; }
-   BddNode getFuncByRoot(unsigned root) const ;
+   void setFunc(BddNode func){ _func = func; }
+	BddNode getFunc() const { return _func; }
    void setVisit(){ _visited = true; }
    bool isVisit() const { return _visited; }
-
-	// void resetGateNum(){ _nGate = 0; }
-	// void incGateNum(){ _nGate++; }
-	// unsigned getGateNum() const { return _nGate; }
-   void resetGateNum() {}
-   void incGateNum() {}
-   unsigned getGateNum() const { return 1; }
 
 	static void setMaxCutSize(int s){ _maxCutSize = s; }
 
@@ -64,12 +54,12 @@ private:
 	bool addLeaf     (unsigned leaf);
 	double costFunc(int) const ;
 	
-	IdList		      _root;
+	unsigned		      _root;
 	// IdList		    _leaf;        // must be sorted
    unsigned          *_leaf, _sz;   // _leaf must be sorted
 	size_t            _sign;         // signature
    CirCut*           _boss;         // cut that dominates this cut
-	vector<BddNode>   _func;         // functions of each root
+	BddNode           _func;         // functions of each root
    bool              _visited;      // true if _func is generated
 	// unsigned        _nGate;       // # of gates in the cut
 
@@ -97,7 +87,6 @@ public:
    void addUnitCut(unsigned root);
    void removeRedundant();
    void removeUnitCut();
-   void replaceByHash(unsigned root);
 	void deleteCutById(unsigned id);
    void genCutList(unsigned root, bool addRoot);
 	void genCutList(CirCutList& cutList, unsigned root, bool addRoot);
