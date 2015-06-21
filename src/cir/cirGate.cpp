@@ -150,7 +150,7 @@ CirXorGate::genCNF(SatSolver& s){
 // genCutList
 void
 CirGate::genCutList(){
-   bool addRoot = (_fecGrp != 0 && _fanoutGateList.size() <= 1);
+   bool addRoot = (_fecGrp != 0);
    CirCutList tmpCutList;
    tmpCutList.genCutList(_faninGateList[0]->getCutList(), _id, false);
    for(unsigned i=1, n=_faninGateList.size(); i<n; ++i){
@@ -252,6 +252,7 @@ CirGate::getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& retCut
    CirCut* cut1;
    const CirCut* cut2;
    unsigned cutList1Size = _cutList.size();
+   unsigned cutList2Size = cutList2.size();
    unsigned cut1Size;
    bool matchLeaf;
    bool ret = false;
@@ -266,7 +267,7 @@ CirGate::getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& retCut
       unsigned* leaf = new unsigned[cut1Size];
       unsigned* perm = new unsigned[cut1Size];
       cut1->genCutFunc();
-      for(unsigned j=0; j<cut1Size && !ret; ++j){
+      for(unsigned j=0; j<cutList2Size && !ret; ++j){
          cut2 = cutList2[j];
          /*
          cout << "-------------" << endl;

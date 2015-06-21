@@ -447,10 +447,6 @@ CirMgr::mapCut()
    }
 
    while(pairList.size()){
-      cout << "===pairList===" << endl;
-      for(unsigned i=0, n=pairList.size(); i<n; ++i)
-         cout << pairList[i].first << ", " << pairList[i].second << endl;
-      cout << "==============" << endl;
       CutPair cp = pairList.back();
       pairList.pop_back();
       updatePairList(cp, pairList);
