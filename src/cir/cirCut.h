@@ -11,7 +11,6 @@
 /*   Class definition   */
 /************************/
 class CirCut;
-class CirCutV;
 class CirCutList;
 
 /********************/
@@ -42,8 +41,6 @@ public:
 	void genCutFunc();
    void setFunc(BddNode func){ _func = func; }
 	BddNode getFunc() const { return _func; }
-   void setVisit(){ _visited = true; }
-   bool isVisit() const { return _visited; }
 
 	static void setMaxCutSize(int s){ _maxCutSize = s; }
 
@@ -58,14 +55,9 @@ private:
 	// IdList		    _leaf;        // must be sorted
    unsigned          *_leaf, _sz;   // _leaf must be sorted
 	size_t            _sign;         // signature
-   CirCut*           _boss;         // cut that dominates this cut
 	BddNode           _func;         // functions of each root
-   bool              _visited;      // true if _func is generated
-	// unsigned        _nGate;       // # of gates in the cut
 
 	static unsigned   _maxCutSize;
-
-	// TODO: use array instead of vector for _leaf?
 };
 
 /************************/

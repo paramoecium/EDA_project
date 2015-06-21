@@ -133,7 +133,7 @@ public:
    void simulate();
    void genCNF(SatSolver&);
 	// Methods about cut
-	// void genGateFunc();
+	void genGateFunc();
 };
 
 class CirAndGate: public CirGate
@@ -144,7 +144,7 @@ public:
    void simulate();
    void genCNF(SatSolver&);
 	// Methods about cut
-	// void genGateFunc();
+	void genGateFunc();
 };
 
 class CirOrGate: public CirGate
@@ -155,7 +155,7 @@ public:
    void simulate();
    void genCNF(SatSolver&);
 	// Methods about cut
-	// void genGateFunc();
+	void genGateFunc();
 };
 
 class CirXorGate: public CirGate
@@ -166,6 +166,6 @@ public:
    void simulate();
    void genCNF(SatSolver&);
 	// Methods about cut
-	// void genGateFunc();
+	void genGateFunc();
 };
 

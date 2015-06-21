@@ -181,6 +181,48 @@ CirPiGate::genGateFunc(){
    return;
 }
 
+void
+CirBufGate::genGateFunc(){
+   if(isMark()) return;
+   mark();
+   _tmpFunc = _faninGateList[0]->getGateFunc();
+   if(isInv())
+      _tmpFunc = ~_tmpFunc;
+}
+
+void
+CirOrGate::genGateFunc(){
+   if(isMark()) return;
+   mark();
+   _tmpFunc = ~bddMgr->getSupport(0);
+   for(unsigned i=0, n=_faninGateList.size(); i<n; ++i)
+      _tmpFunc |= _faninGateList[i]->getGateFunc();
+   if(isInv())
+      _tmpFunc = ~_tmpFunc;
+}
+
+void
+CirAndGate::genGateFunc(){
+   if(isMark()) return;
+   mark();
+   _tmpFunc = bddMgr->getSupport(0);
+   for(unsigned i=0, n=_faninGateList.size(); i<n; ++i)
+      _tmpFunc &= _faninGateList[i]->getGateFunc();
+   if(isInv())
+      _tmpFunc = ~_tmpFunc;
+}
+
+void
+CirXorGate::genGateFunc(){
+   if(isMark()) return;
+   mark();
+   _tmpFunc = bddMgr->getSupport(0);
+   for(unsigned i=0, n=_faninGateList.size(); i<n; ++i)
+      _tmpFunc ^= _faninGateList[i]->getGateFunc();
+   if(isInv())
+      _tmpFunc = ~_tmpFunc;
+}
+
 bool 
 CirGate::getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& cut1, CirCut*& cut2)
 {

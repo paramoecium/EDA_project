@@ -39,19 +39,19 @@ unsigned CirCut::_maxCutSize = 6;
 /********************************************/
 /*   Class CirCut public member functions   */
 /********************************************/
-CirCut::CirCut(): _sign(0), _boss(this), _visited(false){
+CirCut::CirCut(): _sign(0) {
    _leaf = new unsigned [_maxCutSize*2+2];
    _sz = 0;
 }
 
-CirCut::CirCut(unsigned leaf): _sign(0), _boss(this), _visited(false){
+CirCut::CirCut(unsigned leaf): _sign(0) {
    // _leaf.reserve(_maxCutSize*2);
    _leaf = new unsigned[_maxCutSize*2+2];
    _sz = 0;
 	addLeafForce(leaf);
 }
 
-CirCut::CirCut(const CirCut& cut): _sign(0), _boss(this), _visited(false){
+CirCut::CirCut(const CirCut& cut): _sign(0) {
    _leaf = new unsigned[_maxCutSize*2+2];
    _sz = 0;
 	for(unsigned i=0, n=cut.size(); i<n; ++i)
