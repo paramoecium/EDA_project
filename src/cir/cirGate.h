@@ -7,11 +7,6 @@
 
 using namespace std;
 
-/************************/
-/*   extern variables   */
-/************************/
-extern unsigned dfsFlag;
-
 /*********************/
 /*   class CirGate   */
 /*********************/
@@ -35,8 +30,9 @@ public:
    virtual string getGateType() const = 0;
 
    //dfs
-   bool isMark() const { return (_dfsFlag == dfsFlag); }
-   void mark() { _dfsFlag = dfsFlag; }
+   static void incDfsFlag();
+   bool isMark() const ;
+   void mark();
    void setDfsOrder(unsigned order) { _dfsOrder = order; }
    unsigned getDfsOrder() const { return _dfsOrder; }
 
@@ -51,6 +47,8 @@ public:
    virtual void     simulate() = 0;
    virtual unsigned getSimOutput() const { return _simVal; }
    void             setFecGrp(IdList* p) { _fecGrp=p; }
+   void             setFecPhase(bool phase) { _fecPhase = phase; }
+   bool             getFecPhase() const { return _fecPhase; }
 
    // about solve SAT 
    virtual void genCNF(SatSolver&) = 0;
@@ -66,7 +64,7 @@ public:
    void         setGateFunc(BddNode);
 	virtual void genGateFunc();
 	BddNode      getGateFunc() const { return _tmpFunc; }
-   bool getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& cut1, CirCut*& cut2);
+   bool getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& retCut1, CirCut*& retCut2);
 
 protected:
    // basic information
@@ -85,6 +83,7 @@ protected:
    unsigned          _simVal;
    IdList*           _fecGrp;
    CirGate*          _eqGate;
+   bool              _fecPhase;
    
    // SAT solver
    Var               _var;

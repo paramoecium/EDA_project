@@ -45,10 +45,16 @@ CirCut::CirCut(): _sign(0) {
 }
 
 CirCut::CirCut(unsigned leaf): _sign(0) {
-   // _leaf.reserve(_maxCutSize*2);
    _leaf = new unsigned[_maxCutSize*2+2];
    _sz = 0;
 	addLeafForce(leaf);
+}
+
+CirCut::CirCut(const unsigned* leaf, unsigned n): _sign(0) {
+   _leaf = new unsigned[_maxCutSize*2+2];
+   _sz = 0;
+	for(unsigned i=0; i<n; ++i)
+		addLeafForce(leaf[i]);
 }
 
 CirCut::CirCut(const CirCut& cut): _sign(0) {
@@ -102,11 +108,11 @@ CirCut::merge(const CirCut* cut) const {
 }
 
 bool
-CirCut::containGateId(unsigned gid) const {
+CirCut::containGateId(unsigned id) const {
 	// can use binary search as well
 	// cut size is small so linear search is OK
 	for(unsigned i=0, n=size(); i<n; ++i)
-		if(getLeaf(i) == gid) return true;
+		if(getLeaf(i) == id) return true;
 	return false;
 }
 
@@ -124,13 +130,23 @@ CirCut::dominateCut(const CirCut* cut) const {
 void
 CirCut::genCutFunc()
 {
+   CirGate* gate;
+   // set supports
+   CirGate::incDfsFlag();
    for(unsigned i=0, n=size(); i<n; ++i){
-      CirGate* gate = cirMgr->getGateById(getLeaf(i));
-      gate->setGateFunc(bddMgr->getSupport(i+1));
+      gate = cirMgr->getGateById(getLeaf(i));
+      if(gate->getFecPhase())
+         gate->setGateFunc(~bddMgr->getSupport(i+1));
+      else
+         gate->setGateFunc( bddMgr->getSupport(i+1));
    }
-   CirGate* gate = cirMgr->getGateById(getRoot());
+   // generate function
+   gate = cirMgr->getGateById(getRoot());
    gate->genGateFunc();
-   setFunc(gate->getGateFunc());
+   if(gate->getFecPhase())
+      setFunc(~gate->getGateFunc());
+   else
+      setFunc( gate->getGateFunc());
 }
 
 ostream& operator << (ostream& os, const CirCut& cut){

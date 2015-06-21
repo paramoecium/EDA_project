@@ -51,9 +51,10 @@ CirBufGate	cir/cirGate.cpp	/^CirBufGate::CirBufGate(unsigned id, const string& n
 CirBufGate	cir/cirGate.h	/^class CirBufGate: public CirGate$/;"	c
 CirConst0Gate	cir/cirGate.cpp	/^CirConst0Gate::CirConst0Gate(unsigned id, const string& name, const IdList& faninIdList, bool inv): $/;"	f	class:CirConst0Gate
 CirConst0Gate	cir/cirGate.h	/^class CirConst0Gate: public CirGate$/;"	c
-CirCut	cir/cirCut.cpp	/^CirCut::CirCut(): _sign(0), _boss(this), _visited(false){$/;"	f	class:CirCut
-CirCut	cir/cirCut.cpp	/^CirCut::CirCut(const CirCut& cut): _sign(0), _boss(this), _visited(false){$/;"	f	class:CirCut
-CirCut	cir/cirCut.cpp	/^CirCut::CirCut(unsigned leaf): _sign(0), _boss(this), _visited(false){$/;"	f	class:CirCut
+CirCut	cir/cirCut.cpp	/^CirCut::CirCut(): _sign(0) {$/;"	f	class:CirCut
+CirCut	cir/cirCut.cpp	/^CirCut::CirCut(const CirCut& cut): _sign(0) {$/;"	f	class:CirCut
+CirCut	cir/cirCut.cpp	/^CirCut::CirCut(const unsigned* leaf, unsigned n): _sign(0) {$/;"	f	class:CirCut
+CirCut	cir/cirCut.cpp	/^CirCut::CirCut(unsigned leaf): _sign(0) {$/;"	f	class:CirCut
 CirCut	cir/cirCut.h	/^class CirCut$/;"	c
 CirCutList	cir/cirCut.cpp	/^CirCutList::CirCutList(){$/;"	f	class:CirCutList
 CirCutList	cir/cirCut.h	/^class CirCutList$/;"	c
@@ -197,7 +198,6 @@ _bddMap	bdd/bddMgr.h	/^   BddMap                 _bddMap;$/;"	m	class:BddMgr
 _bnId	bdd/myHash.h	/^      size_t                     _bnId;$/;"	m	class:Hash::iterator
 _bnId	util/myHash.h	/^      size_t                     _bnId;$/;"	m	class:Hash::iterator
 _bnId	util/myHashSet.h	/^      size_t            _bnId;$/;"	m	class:HashSet::iterator
-_boss	cir/cirCut.h	/^   CirCut*           _boss;         \/\/ cut that dominates this cut$/;"	m	class:CirCut
 _buck	util/myHashMap.h	/^      vector<HashNode>* _buck;$/;"	m	class:HashMap::iterator
 _buckets	bdd/myHash.h	/^   vector<HashNode>*        _buckets;$/;"	m	class:Hash
 _buckets	util/myHash.h	/^   vector<HashNode>*        _buckets;$/;"	m	class:Hash
@@ -228,6 +228,7 @@ _faninIdList	cir/cirGate.h	/^   IdList            _faninIdList;$/;"	m	class:CirG
 _fanoutGateList	cir/cirGate.h	/^   GateList          _fanoutGateList;$/;"	m	class:CirGate
 _fecGrp	cir/cirGate.h	/^   IdList*           _fecGrp;$/;"	m	class:CirGate
 _fecGrps	cir/cirMgr.h	/^   vector<IdList*>         _fecGrps; $/;"	m	class:CirMgr
+_fecPhase	cir/cirGate.h	/^   bool              _fecPhase;$/;"	m	class:CirGate
 _func	cir/cirCut.h	/^	BddNode           _func;         \/\/ functions of each root$/;"	m	class:CirCut
 _g	bdd/bddMgr.h	/^   size_t       _g;$/;"	m	class:BddCacheKey
 _gateList	cir/cirMgr.h	/^   GateList                _gateList;$/;"	m	class:CirMgr
@@ -281,7 +282,6 @@ _value	cir/cirSim.cpp	/^   unsigned _value;$/;"	m	class:SimPValue	file:
 _var	cir/cirGate.h	/^   Var               _var;$/;"	m	class:CirGate
 _varMap	cir/cirMgr.h	/^   map<string, unsigned>   _varMap;$/;"	m	class:CirMgr
 _varNum	cir/cirMgr.h	/^   unsigned                _varNum;$/;"	m	class:CirMgr
-_visited	cir/cirCut.h	/^   bool              _visited;      \/\/ true if _func is generated$/;"	m	class:CirCut
 _whB	util/myHashMap.h	/^      size_t _whB;    \/\/ in which bucket$/;"	m	class:HashMap::iterator
 _zero	bdd/bddNode.cpp	/^BddNode BddNode::_zero;$/;"	m	class:BddNode	file:
 _zero	bdd/bddNode.h	/^   static BddNode          _zero;$/;"	m	class:BddNode
@@ -372,7 +372,7 @@ compress	sat/Proof.cpp	/^void Proof::compress(Proof& dst, ClauseId goal)$/;"	f	c
 conflict	sat/Solver.h	/^    vec<Lit>    conflict;           \/\/ If problem is unsatisfiable under assumptions, this vector represent the conflict clause expressed in the assumptions.$/;"	m	class:Solver
 conflict_id	sat/Solver.h	/^    ClauseId    conflict_id;        \/\/ (In proof logging mode only.) ID for the clause 'conflict' (for proof traverseral). NOTE! The empty clause is always the last clause derived, but for conflicts under assumption, this is not necessarly true.$/;"	m	class:Solver
 conflicts	sat/Solver.h	/^    int64   starts, decisions, propagations, conflicts;$/;"	m	struct:SolverStats
-containGateId	cir/cirCut.cpp	/^CirCut::containGateId(unsigned gid) const {$/;"	f	class:CirCut
+containGateId	cir/cirCut.cpp	/^CirCut::containGateId(unsigned id) const {$/;"	f	class:CirCut
 containNode	bdd/bddNode.cpp	/^BddNode::containNode(unsigned bLevel, unsigned eLevel) const$/;"	f	class:BddNode
 containNodeRecur	bdd/bddNode.cpp	/^BddNode::containNodeRecur(unsigned bLevel, unsigned eLevel) const$/;"	f	class:BddNode
 copyTo	sat/Global.h	/^    void copyTo(vec<T>& copy) const { copy.clear(); copy.growTo(sz); for (int i = 0; i < sz; i++) new (&copy[i]) T(data[i]); }$/;"	f	class:vec
@@ -398,7 +398,7 @@ deleteCutById	cir/cirCut.cpp	/^CirCutList::deleteCutById(unsigned id){$/;"	f	cla
 deleted	sat/Proof.cpp	/^void Proof::deleted(ClauseId gone)$/;"	f	class:Proof
 deleted	sat/Proof.h	/^    virtual void deleted(ClauseId c){}$/;"	f	struct:ProofTraverser
 dfs	cir/cirMgr.cpp	/^CirMgr::dfs(CirGate* gate){$/;"	f	class:CirMgr
-dfsFlag	cir/cirMgr.cpp	/^unsigned dfsFlag = 0;$/;"	v
+dfsFlag	cir/cirGate.cpp	/^static unsigned dfsFlag = 0;$/;"	v	file:
 doSimBySAT	cir/cirCEC.cpp	/^CirMgr::doSimBySAT(const SatSolver& s)$/;"	f	class:CirMgr
 dominateCut	cir/cirCut.cpp	/^CirCut::dominateCut(const CirCut* cut) const {$/;"	f	class:CirCut
 drand	sat/Global.h	/^static inline double drand(double& seed) {$/;"	f
@@ -448,9 +448,13 @@ genCutList	cir/cirCut.cpp	/^CirCutList::genCutList(unsigned root, bool addRoot){
 genCutList	cir/cirGate.cpp	/^CirConst0Gate::genCutList(){$/;"	f	class:CirConst0Gate
 genCutList	cir/cirGate.cpp	/^CirGate::genCutList(){$/;"	f	class:CirGate
 genCutList	cir/cirGate.cpp	/^CirPiGate::genCutList(){$/;"	f	class:CirPiGate
+genGateFunc	cir/cirGate.cpp	/^CirAndGate::genGateFunc(){$/;"	f	class:CirAndGate
+genGateFunc	cir/cirGate.cpp	/^CirBufGate::genGateFunc(){$/;"	f	class:CirBufGate
 genGateFunc	cir/cirGate.cpp	/^CirConst0Gate::genGateFunc(){$/;"	f	class:CirConst0Gate
 genGateFunc	cir/cirGate.cpp	/^CirGate::genGateFunc(){$/;"	f	class:CirGate
+genGateFunc	cir/cirGate.cpp	/^CirOrGate::genGateFunc(){$/;"	f	class:CirOrGate
 genGateFunc	cir/cirGate.cpp	/^CirPiGate::genGateFunc(){$/;"	f	class:CirPiGate
+genGateFunc	cir/cirGate.cpp	/^CirXorGate::genGateFunc(){$/;"	f	class:CirXorGate
 genPattern	cir/cirSim.cpp	/^CirMgr::genPattern(const string& fileName)$/;"	f	class:CirMgr
 genProofModel	cir/cirCEC.cpp	/^CirMgr::genProofModel(SatSolver& s)$/;"	f	class:CirMgr
 getAllCubes	bdd/bddNode.cpp	/^BddNode::getAllCubes() const$/;"	f	class:BddNode
@@ -470,6 +474,7 @@ getFaninGate	cir/cirGate.h	/^   CirGate* getFaninGate(unsigned idx) const { retu
 getFaninId	cir/cirGate.h	/^   unsigned getFaninId  (unsigned idx) const { return _faninIdList[idx]; }$/;"	f	class:CirGate
 getFaninSize	cir/cirGate.h	/^   unsigned getFaninSize()             const { return _faninIdList.size(); }$/;"	f	class:CirGate
 getFecGrp	cir/cirGate.h	/^   IdList*      getFecGrp() const { return _fecGrp; }$/;"	f	class:CirGate
+getFecPhase	cir/cirGate.h	/^   bool             getFecPhase() const { return _fecPhase; }$/;"	f	class:CirGate
 getFunc	cir/cirCut.h	/^	BddNode getFunc() const { return _func; }$/;"	f	class:CirCut
 getGateById	cir/cirMgr.h	/^   CirGate* getGateById(unsigned id) const { return _gateList[id]; }$/;"	f	class:CirMgr
 getGateByName	cir/cirMgr.h	/^   CirGate* getGateByName(const string& name) const {$/;"	f	class:CirMgr
@@ -492,7 +497,7 @@ getLeft	bdd/bddNode.h	/^   const BddNode& getLeft() const { return _left; }$/;"	
 getLeftCofactor	bdd/bddNode.cpp	/^BddNode::getLeftCofactor(unsigned i) const$/;"	f	class:BddNode
 getLevel	bdd/bddNode.cpp	/^BddNode::getLevel() const$/;"	f	class:BddNode
 getLevel	bdd/bddNode.h	/^   unsigned getLevel() const { return _level; }$/;"	f	class:BddNodeInt
-getMatchCut	cir/cirGate.cpp	/^CirGate::getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& cut1, CirCut*& cut2)$/;"	f	class:CirGate
+getMatchCut	cir/cirGate.cpp	/^CirGate::getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& retCut1, CirCut*& retCut2)$/;"	f	class:CirGate
 getMode	sat/File.h	/^    FileMode getMode(void) {$/;"	f	class:File
 getName	cir/cirGate.h	/^   string getName() const { return _name; }$/;"	f	class:CirGate
 getNumCubes	bdd/bddMgr.cpp	/^BddMgr::getNumCubes(const BddNode& n)$/;"	f	class:BddMgr
@@ -524,8 +529,10 @@ id	sat/SolverTypes.h	/^    ClauseId& id          ()      const { return *((Claus
 id	sat/SolverTypes.h	/^inline Lit  id    (Lit p, bool sgn) { Lit q; q.x = p.x ^ (int)sgn; return q; }$/;"	f
 id_counter	sat/Proof.h	/^    ClauseId        id_counter;$/;"	m	class:Proof
 inHeap	sat/Heap.h	/^    bool inHeap    (int n)    { assert(ok(n)); return indices[n] != 0; }$/;"	f	class:Heap
-inSameFecGroup	cir/cirMgr.cpp	/^static bool inSameFecGroup(const CirGate* gate1, const CirGate* gate2){$/;"	f	file:
+inSameFecGroup	cir/cirMgr.cpp	/^CirMgr::inSameFecGroup(const CirGate* gate1, const CirGate* gate2) const$/;"	f	class:CirMgr
+inSameFecGroup	cir/cirMgr.cpp	/^CirMgr::inSameFecGroup(unsigned id1, unsigned id2) const$/;"	f	class:CirMgr
 inSet	util/myParse.cpp	/^bool inSet(char c, const vector<char>& set){$/;"	f
+incDfsFlag	cir/cirGate.cpp	/^CirGate::incDfsFlag(){ ++dfsFlag; }$/;"	f	class:CirGate
 incRefCount	bdd/bddNode.h	/^   void incRefCount() { ++_refCount; }$/;"	f	class:BddNodeInt
 increase	sat/Heap.h	/^    void increase  (int n)    { assert(ok(n)); assert(inHeap(n)); percolateUp(indices[n]); }$/;"	f	class:Heap
 index	sat/SolverTypes.h	/^inline int  index (Lit p) { return p.x; }                \/\/ A "toInt" method that guarantees small, positive integers suitable for array indexing.$/;"	f
@@ -552,7 +559,7 @@ irand	sat/Global.h	/^static inline int irand(double& seed, int size) {$/;"	f
 isConstant	cir/cirMgr.cpp	/^static bool isConstant(const string& name){$/;"	f	file:
 isInv	cir/cirGate.h	/^   bool isInv() const { return _inv;  }$/;"	f	class:CirGate
 isLit	sat/SolverTypes.h	/^    bool        isLit    () const { return ((uintp)data & 1) == 1; }$/;"	f	class:GClause
-isMark	cir/cirGate.h	/^   bool isMark() const { return (_dfsFlag == dfsFlag); }$/;"	f	class:CirGate
+isMark	cir/cirGate.cpp	/^CirGate::isMark() const { return (_dfsFlag == dfsFlag); }$/;"	f	class:CirGate
 isNegEdge	bdd/bddNode.h	/^   bool isNegEdge() const { return (_nodeV & BDD_NEG_EDGE); }$/;"	f	class:BddNode
 isPi	cir/cirGate.h	/^   bool isPi()  const { return _isPi; }$/;"	f	class:CirGate
 isPo	cir/cirGate.h	/^   bool isPo()  const { return _isPo; }$/;"	f	class:CirGate
@@ -560,7 +567,6 @@ isPosEdge	bdd/bddNode.h	/^   bool isPosEdge() const { return !isNegEdge(); }$/;"
 isTerminal	bdd/bddNode.cpp	/^BddNode::isTerminal() const$/;"	f	class:BddNode
 isValidGateTypeName	cir/cirMgr.cpp	/^static bool isValidGateTypeName(const string& name){$/;"	f	file:
 isValidVarName	util/myString.cpp	/^isValidVarName(const string& str)$/;"	f
-isVisit	cir/cirCut.h	/^   bool isVisit() const { return _visited; }$/;"	f	class:CirCut
 isVisited	bdd/bddNode.h	/^   bool isVisited() const { return (_visited == 1); }$/;"	f	class:BddNodeInt
 ite	bdd/bddMgr.cpp	/^BddMgr::ite(BddNode f, BddNode g, BddNode h)$/;"	f	class:BddMgr
 iterator	bdd/myHash.h	/^      iterator(Hash<HashKey, HashData>* h = 0, size_t b = 0, size_t bn = 0)$/;"	f	class:Hash::iterator
@@ -596,9 +602,9 @@ linkGates	cir/cirMgr.cpp	/^CirMgr::linkGates(){$/;"	f	class:CirMgr
 lit	sat/SolverTypes.h	/^    Lit         lit      () const { return toLit(((intp)data) >> 1); }$/;"	f	class:GClause
 locked	sat/Solver.h	/^    bool     locked          (const Clause* c) const { return reason[var((*c)[0])] == c; }$/;"	f	class:Solver
 lseek64	sat/File.h	13;"	d
-main	main/main.cpp	/^main(int argc, char** argv){$/;"	f
+main	main/main.cpp	/^int main(int argc, char** argv){$/;"	f
 mapCut	cir/cirMgr.cpp	/^CirMgr::mapCut()$/;"	f	class:CirMgr
-mark	cir/cirGate.h	/^   void mark() { _dfsFlag = dfsFlag; }$/;"	f	class:CirGate
+mark	cir/cirGate.cpp	/^CirGate::mark() { _dfsFlag = dfsFlag; }$/;"	f	class:CirGate
 max	sat/Global.h	/^template<class T> static inline T max(T x, T y) { return (x > y) ? x : y; }$/;"	f
 max_literals	sat/Solver.h	/^    int64   clauses_literals, learnts_literals, max_literals, tot_literals;$/;"	m	struct:SolverStats
 memReadStat	sat/Global.h	/^static inline int memReadStat(int field)$/;"	f
@@ -820,6 +826,7 @@ setBounds	sat/Heap.h	/^    void setBounds (int size) { assert(size >= 0); indice
 setDfsOrder	cir/cirGate.h	/^   void setDfsOrder(unsigned order) { _dfsOrder = order; }$/;"	f	class:CirGate
 setEqGate	cir/cirGate.h	/^   void         setEqGate(CirGate* g) { _eqGate = g; }$/;"	f	class:CirGate
 setFecGrp	cir/cirGate.h	/^   void             setFecGrp(IdList* p) { _fecGrp=p; }$/;"	f	class:CirGate
+setFecPhase	cir/cirGate.h	/^   void             setFecPhase(bool phase) { _fecPhase = phase; }$/;"	f	class:CirGate
 setFunc	cir/cirCut.h	/^   void setFunc(BddNode func){ _func = func; }$/;"	f	class:CirCut
 setGateFunc	cir/cirGate.cpp	/^CirGate::setGateFunc(BddNode func){$/;"	f	class:CirGate
 setMaxCutSize	cir/cirCut.h	/^	static void setMaxCutSize(int s){ _maxCutSize = s; }$/;"	f	class:CirCut
@@ -830,7 +837,6 @@ setPo	cir/cirGate.h	/^   void setPo(){ _isPo = true; }$/;"	f	class:CirGate
 setRoot	cir/cirCut.h	/^   void setRoot(unsigned root) { _root = root; }$/;"	f	class:CirCut
 setTimeUsage	util/myUsage.h	/^   void setTimeUsage() {$/;"	f	class:MyUsage
 setVar	cir/cirGate.h	/^   void         setVar(Var v) { _var=v; }$/;"	f	class:CirGate
-setVisit	cir/cirCut.h	/^   void setVisit(){ _visited = true; }$/;"	f	class:CirCut
 setVisited	bdd/bddNode.h	/^   void setVisited() { _visited = 1; }$/;"	f	class:BddNodeInt
 set_keypress	util/myGetChar.cpp	/^static void set_keypress(void)$/;"	f	file:
 shrink	sat/Global.h	/^    void     shrink (int nelems)       { assert(nelems <= sz); for (int i = 0; i < nelems; i++) sz--, data[sz].~T(); }$/;"	f	class:vec

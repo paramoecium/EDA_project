@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include <algorithm>
 #include "cirGate.h"
 #include "cirMgr.h"
 
@@ -9,6 +10,11 @@ using namespace std;
 /************************/
 extern CirMgr* cirMgr;
 extern BddMgr* bddMgr;
+
+/************************/
+/*   static variables   */
+/************************/
+static unsigned dfsFlag = 0;
 
 /**************************************/
 /*   class CirGate public functions   */
@@ -44,6 +50,15 @@ CirGate::printGate() const {
       cout << _faninIdList[i] << " ";
    cout << endl;
 }
+
+void
+CirGate::incDfsFlag(){ ++dfsFlag; }
+
+bool 
+CirGate::isMark() const { return (_dfsFlag == dfsFlag); }
+
+void 
+CirGate::mark() { _dfsFlag = dfsFlag; }
 
 // simulation
 void
@@ -135,7 +150,7 @@ CirXorGate::genCNF(SatSolver& s){
 // genCutList
 void
 CirGate::genCutList(){
-   bool addRoot = (_fecGrp != 0);
+   bool addRoot = (_fecGrp != 0 && _fanoutGateList.size() <= 1);
    CirCutList tmpCutList;
    tmpCutList.genCutList(_faninGateList[0]->getCutList(), _id, false);
    for(unsigned i=1, n=_faninGateList.size(); i<n; ++i){
@@ -185,6 +200,7 @@ void
 CirBufGate::genGateFunc(){
    if(isMark()) return;
    mark();
+   _faninGateList[0]->genGateFunc();
    _tmpFunc = _faninGateList[0]->getGateFunc();
    if(isInv())
       _tmpFunc = ~_tmpFunc;
@@ -195,8 +211,10 @@ CirOrGate::genGateFunc(){
    if(isMark()) return;
    mark();
    _tmpFunc = ~bddMgr->getSupport(0);
-   for(unsigned i=0, n=_faninGateList.size(); i<n; ++i)
+   for(unsigned i=0, n=_faninGateList.size(); i<n; ++i){
+      _faninGateList[i]->genGateFunc();
       _tmpFunc |= _faninGateList[i]->getGateFunc();
+   }
    if(isInv())
       _tmpFunc = ~_tmpFunc;
 }
@@ -206,8 +224,10 @@ CirAndGate::genGateFunc(){
    if(isMark()) return;
    mark();
    _tmpFunc = bddMgr->getSupport(0);
-   for(unsigned i=0, n=_faninGateList.size(); i<n; ++i)
+   for(unsigned i=0, n=_faninGateList.size(); i<n; ++i){
+      _faninGateList[i]->genGateFunc();
       _tmpFunc &= _faninGateList[i]->getGateFunc();
+   }
    if(isInv())
       _tmpFunc = ~_tmpFunc;
 }
@@ -216,16 +236,71 @@ void
 CirXorGate::genGateFunc(){
    if(isMark()) return;
    mark();
-   _tmpFunc = bddMgr->getSupport(0);
-   for(unsigned i=0, n=_faninGateList.size(); i<n; ++i)
+   _tmpFunc = ~bddMgr->getSupport(0);
+   for(unsigned i=0, n=_faninGateList.size(); i<n; ++i){
+      _faninGateList[i]->genGateFunc();
       _tmpFunc ^= _faninGateList[i]->getGateFunc();
+   }
    if(isInv())
       _tmpFunc = ~_tmpFunc;
 }
 
 bool 
-CirGate::getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& cut1, CirCut*& cut2)
+CirGate::getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& retCut1, CirCut*& retCut2)
 {
-
-   return false;
+   CirGate* gate2 = cirMgr->getGateById(root2);
+   CirCut* cut1;
+   const CirCut* cut2;
+   unsigned cutList1Size = _cutList.size();
+   unsigned cut1Size;
+   bool matchLeaf;
+   bool ret = false;
+   
+   assert(cirMgr->inSameFecGroup(this, gate2));
+   
+   for(unsigned i=0; i<cutList1Size && !ret; ++i){
+      cut1 = _cutList[i];
+      cut1Size = cut1->size();
+      // size of 1 is not allowed
+      if(cut1Size == 1) continue;
+      unsigned* leaf = new unsigned[cut1Size];
+      unsigned* perm = new unsigned[cut1Size];
+      cut1->genCutFunc();
+      for(unsigned j=0; j<cut1Size && !ret; ++j){
+         cut2 = cutList2[j];
+         /*
+         cout << "-------------" << endl;
+         cout << "checking cut" << endl;
+         cout << *cut1 << endl;
+         cout << *cut2 << endl;
+         cout << "-------------" << endl;
+         */
+         if(cut2->size() != cut1Size) continue;
+         for(unsigned p=0; p<cut1Size; ++p) perm[p] = p;
+         do{
+            matchLeaf = true;
+            for(unsigned k=0; k<cut1Size; ++k){
+               if(!cirMgr->inSameFecGroup(cut1->getLeaf(k), cut2->getLeaf(perm[k]))){
+                  matchLeaf = false;
+                  break;
+               }
+               leaf[k] = cut2->getLeaf(perm[k]);
+            }
+            if(matchLeaf){
+               CirCut* cut = new CirCut(leaf, cut1Size);
+               cut->setRoot(root2);
+               cut->genCutFunc();
+               if(cut1->getFunc() == cut->getFunc()){
+                  retCut1 = new CirCut(*cut1);
+                  retCut2 = new CirCut(*cut);
+                  ret = true;
+               }
+               delete cut;
+            }
+         } while(next_permutation(perm, perm+cut1Size) && !ret);
+      }
+      delete [] leaf;
+      delete [] perm;
+   }
+   return ret;
 }

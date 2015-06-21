@@ -40,6 +40,8 @@ public:
    void cec();
 
    // circuit reporting
+   bool inSameFecGroup(unsigned id1, unsigned id2) const ;
+   bool inSameFecGroup(const CirGate* gate1, const CirGate* gate2) const ;
    void printNetlist() const ;
    void printFECPairs() const ;
    void writeFECPairs(const string& filename) const ;

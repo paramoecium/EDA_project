@@ -8,7 +8,6 @@ using namespace std;
 /*   global variables   */
 /************************/
 CirMgr* cirMgr;
-unsigned dfsFlag = 0;
 
 /**************************************/
 /*   static variables and functions   */
@@ -39,11 +38,6 @@ static string toConstant(const string& name){
    assert(isConstant(name));
    if(name[3] == '0') return "1'b0";
    return "1'b1";
-}
-
-static bool inSameFecGroup(const CirGate* gate1, const CirGate* gate2){
-   return (gate1->getFecGrp() != NULL &&
-           gate1->getFecGrp() == gate2->getFecGrp());
 }
 
 /*************************************/
@@ -328,7 +322,7 @@ CirMgr::linkGates(){
 
 void
 CirMgr::buildDfsList(){
-   ++dfsFlag;
+   CirGate::incDfsFlag();
    for(unsigned i=0, n=_poList.size(); i<n; ++i)
       dfs(getGateById(_poList[i]));
 }
@@ -340,6 +334,21 @@ CirMgr::printNetlist() const
       cout << "[" << i << "] " << left << setw(5) << _dfsList[i]->getId();
       _dfsList[i]->printGate();
    }
+}
+
+bool 
+CirMgr::inSameFecGroup(unsigned id1, unsigned id2) const
+{
+   CirGate* gate1 = getGateById(id1);
+   CirGate* gate2 = getGateById(id2);
+   return inSameFecGroup(gate1, gate2);
+}
+
+bool 
+CirMgr::inSameFecGroup(const CirGate* gate1, const CirGate* gate2) const
+{
+   return (gate1->getFecGrp() != NULL &&
+           gate1->getFecGrp() == gate2->getFecGrp());
 }
 
 void
@@ -424,6 +433,8 @@ CirMgr::mapCut()
    CirGate *gateA, *gateB;
    string nameA;
 
+   bddMgr->init(10, getHashSize(_dfsList.size()*5), 
+                    getHashSize(_dfsList.size()*10) );
    // put all the PO into pairList
    for(unsigned i=0, n=_poList.size(); i<n; ++i){
       gateA = getGateById(_poList[i]);
@@ -435,10 +446,11 @@ CirMgr::mapCut()
       }
    }
 
-   for(unsigned i=0, n=pairList.size(); i<n; ++i)
-      cout << pairList[i].first << ", " << pairList[i].second << endl;
-
    while(pairList.size()){
+      cout << "===pairList===" << endl;
+      for(unsigned i=0, n=pairList.size(); i<n; ++i)
+         cout << pairList[i].first << ", " << pairList[i].second << endl;
+      cout << "==============" << endl;
       CutPair cp = pairList.back();
       pairList.pop_back();
       updatePairList(cp, pairList);
@@ -495,8 +507,15 @@ CirMgr::updatePairList(CutPair cp, vector<CutPair>& pairList)
    if(inSameFecGroup(gate1, gate2)){
       if(gate1->getMatchCut(gate2->getCutList(), gate2->getId(), cut1, cut2)){
          assert(cut1->size() == cut2->size());
+         cout << "=============" << endl;
+         cout << "matched cut:" << endl;
+         cout << *cut1 << endl;
+         cout << *cut2 << endl;
+         cout << "=============" << endl;
          for(unsigned i=0, n=cut1->size(); i<n; ++i)
             pairList.push_back(make_pair(cut1->getLeaf(i), cut2->getLeaf(i)));
+         delete cut1;
+         delete cut2;
       }
    }
    else{ // only happen when gate1/gate2 are POs

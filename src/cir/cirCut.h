@@ -21,6 +21,7 @@ class CirCut
 public:
    CirCut();
 	CirCut(unsigned leaf);
+   CirCut(const unsigned* leaf, unsigned n);
 	CirCut(const CirCut& cut);
    ~CirCut();
 
@@ -35,7 +36,7 @@ public:
 	const unsigned& operator [] (int idx) const { return _leaf[idx]; }
 
 	CirCut* merge(const CirCut* cut) const ;
-	bool containGateId(unsigned gid) const ;
+	bool containGateId(unsigned id) const ;
 	bool dominateCut(const CirCut* cut) const ;
 
 	void genCutFunc();

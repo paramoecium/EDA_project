@@ -224,6 +224,7 @@ CirMgr::sortFecGrp(IdList* oldFecGrp, vector<IdList*>& newGrps)
          assert(fecHashMap.insert(FecNode(temp, fecGrp)));
       }
       g->setFecGrp(fecGrp);
+      g->setFecPhase(phase);
       fecGrp->push_back(2 * g->getId() + phase);
    }
    for (HashMap<SimPValue, IdList*>::iterator it = fecHashMap.begin(); it != fecHashMap.end(); ++it){
