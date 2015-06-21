@@ -67,6 +67,10 @@ public:
 	virtual void genGateFunc();
 	BddNode      getGateFunc() const { return _tmpFunc; }
    bool getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& cut1, CirCut*& cut2);
+   void         setIsCut(bool cut) { _isCut = cut; }
+   void         setCutId(unsigned id) { _cutId = id; }
+   bool         isCut() const { return _isCut; }
+   unsigned     getCutId() const { return _cutId; }
 
 protected:
    // basic information
@@ -92,6 +96,8 @@ protected:
    // cut
    CirCutList        _cutList;
    BddNode           _tmpFunc;
+   bool              _isCut;
+   unsigned          _cutId;
 
    // dfs
    mutable unsigned  _dfsFlag;

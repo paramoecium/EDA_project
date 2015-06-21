@@ -505,3 +505,63 @@ CirMgr::updatePairList(CutPair cp, vector<CutPair>& pairList)
 }
 
 
+// 1.Called when two design are UNEquivalence
+// 2.DFS from PO, if find equivalence then cut and stop
+//   else run till reach PI
+void 
+CirMgr::nonEqAddCut()
+{
+   ++dfsFlag;
+   for (unsigned i=0, n=_poList.size(); i<n; ++i)
+      dfsAddCut(getGateById(_poList[i]));
+}
+
+// Called only in nonEqAddCut
+// Check whether gate1 is in any fecgroup
+// DO NOT CUT If 
+//   1. Other gate in fecgroup is in the same design with gate1
+//   2. gate1 is pi
+// else cut and ignore gate1's fanin
+void 
+CirMgr::dfsAddCut(CirGate* gate1)
+{
+   if(gate1->isMark()|| gate1->isCut()) return;
+   gate1->mark();
+   // if find eq then cut and stop
+   static unsigned number = 0;
+   IdList* fecGrp= gate1->getFecGrp();
+   bool cut = false;
+   if (fecGrp != NULL && !gate1->isPi()){
+      unsigned gatePhase = 0;
+      for (unsigned i=0, n=fecGrp->size(); i<n; ++i){
+         if (fecGrp->at(i)/2 != gate1->getId())
+            continue;
+         gatePhase = fecGrp->at(i)%2;
+      }
+      string design = gate1->getName().substr(0,9);
+
+      for(unsigned i=0, n=fecGrp->size(); i<n; ++i){
+         unsigned phase = fecGrp->at(i)%2 ^ gatePhase;
+         CirGate* gate2 = getGateById(fecGrp->at(i)/2);
+         if (gate2->getName().substr(0,9) == design ||
+             gate2->getId() == gate1->getId() || 
+             gate2->isPi())
+            continue;
+         cut = true;
+         gate2->setIsCut(true);
+         gate2->setCutId(2*number + phase);
+         //cout << gate2->getName() << endl;
+      }   
+      if (cut){
+         gate1->setIsCut(cut);
+         gate1->setCutId(2*number);
+         //cout << gate1->getName() << endl;
+         //cout << "=============" << endl;
+         ++number;
+         return;
+      }
+   }
+   // else continue
+   for(unsigned i=0, n=gate1->getFaninSize(); i<n; ++i)
+      dfsAddCut(gate1->getFaninGate(i));
+}
