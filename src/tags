@@ -3,7 +3,7 @@
 !_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
-!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+!_TAG_PROGRAM_VERSION	5.8	//
 BDD_EDGE_BITS	bdd/bddNode.h	18;"	d
 BDD_EDGE_DUMMY	bdd/bddNode.h	/^   BDD_EDGE_DUMMY  \/\/ dummy end$/;"	e	enum:BDD_EDGE_FLAG
 BDD_EDGE_FLAG	bdd/bddNode.h	/^enum BDD_EDGE_FLAG$/;"	g
@@ -212,6 +212,7 @@ _computedTable	bdd/bddMgr.h	/^   BddCache               _computedTable;$/;"	m	cl
 _curVar	sat/sat.h	/^      Var               _curVar;    \/\/ Variable currently$/;"	m	class:SatSolver
 _currentMem	util/myUsage.h	/^   double     _currentMem;$/;"	m	class:MyUsage
 _currentTick	util/myUsage.h	/^   double     _currentTick;$/;"	m	class:MyUsage
+_cutId	cir/cirGate.h	/^   unsigned          _cutId;$/;"	m	class:CirGate
 _cutList	cir/cirGate.h	/^   CirCutList        _cutList;$/;"	m	class:CirGate
 _cuts	cir/cirCut.h	/^	vector<CirCut*> _cuts;$/;"	m	class:CirCutList
 _debugBddAddr	bdd/bddNode.cpp	/^bool BddNode::_debugBddAddr = false;$/;"	m	class:BddNode	file:
@@ -241,6 +242,7 @@ _id	cir/cirGate.h	/^   unsigned          _id;$/;"	m	class:CirGate
 _initMem	util/myUsage.h	/^   double     _initMem;$/;"	m	class:MyUsage
 _inv	cir/cirGate.h	/^   bool              _inv;$/;"	m	class:CirGate
 _ioNameList	cir/cirMgr.h	/^   vector<string>          _ioNameList[2];$/;"	m	class:CirMgr
+_isCut	cir/cirGate.h	/^   bool              _isCut;$/;"	m	class:CirGate
 _isPi	cir/cirGate.h	/^   bool              _isPi, _isPo;$/;"	m	class:CirGate
 _isPo	cir/cirGate.h	/^   bool              _isPi, _isPo;$/;"	m	class:CirGate
 _l	bdd/bddMgr.h	/^   size_t     _l;$/;"	m	class:BddHashKey
@@ -398,6 +400,7 @@ deleteCutById	cir/cirCut.cpp	/^CirCutList::deleteCutById(unsigned id){$/;"	f	cla
 deleted	sat/Proof.cpp	/^void Proof::deleted(ClauseId gone)$/;"	f	class:Proof
 deleted	sat/Proof.h	/^    virtual void deleted(ClauseId c){}$/;"	f	struct:ProofTraverser
 dfs	cir/cirMgr.cpp	/^CirMgr::dfs(CirGate* gate){$/;"	f	class:CirMgr
+dfsAddCut	cir/cirMgr.cpp	/^CirMgr::dfsAddCut(CirGate* gate1)$/;"	f	class:CirMgr
 dfsFlag	cir/cirGate.cpp	/^static unsigned dfsFlag = 0;$/;"	v	file:
 doSimBySAT	cir/cirCEC.cpp	/^CirMgr::doSimBySAT(const SatSolver& s)$/;"	f	class:CirMgr
 dominateCut	cir/cirCut.cpp	/^CirCut::dominateCut(const CirCut* cut) const {$/;"	f	class:CirCut
@@ -467,6 +470,7 @@ getChar	sat/File.h	/^    int getChar(void) {$/;"	f	class:File
 getCharQ	sat/File.h	/^    int getCharQ(void) {            \/\/ Quick version with minimal overhead -- don't call this in the wrong mode!$/;"	f	class:File
 getCube	bdd/bddNode.cpp	/^BddNode::getCube(size_t ith) const$/;"	f	class:BddNode
 getCubeRecur	bdd/bddNode.cpp	/^BddNode::getCubeRecur$/;"	f	class:BddNode
+getCutId	cir/cirGate.h	/^   unsigned     getCutId() const { return _cutId; }$/;"	f	class:CirGate
 getCutList	cir/cirGate.h	/^	CirCutList&  getCutList(){ return _cutList; }$/;"	f	class:CirGate
 getDfsOrder	cir/cirGate.h	/^   unsigned getDfsOrder() const { return _dfsOrder; }$/;"	f	class:CirGate
 getEqGate	cir/cirGate.h	/^   CirGate*     getEqGate() const { return _eqGate; }$/;"	f	class:CirGate
@@ -557,6 +561,7 @@ intp	sat/Global.h	/^typedef INT_PTR            intp;$/;"	t
 intp	sat/Global.h	/^typedef __PTRDIFF_TYPE__   intp;$/;"	t
 irand	sat/Global.h	/^static inline int irand(double& seed, int size) {$/;"	f
 isConstant	cir/cirMgr.cpp	/^static bool isConstant(const string& name){$/;"	f	file:
+isCut	cir/cirGate.h	/^   bool         isCut() const { return _isCut; }$/;"	f	class:CirGate
 isInv	cir/cirGate.h	/^   bool isInv() const { return _inv;  }$/;"	f	class:CirGate
 isLit	sat/SolverTypes.h	/^    bool        isLit    () const { return ((uintp)data & 1) == 1; }$/;"	f	class:GClause
 isMark	cir/cirGate.cpp	/^CirGate::isMark() const { return (_dfsFlag == dfsFlag); }$/;"	f	class:CirGate
@@ -634,6 +639,7 @@ newVar	sat/VarOrder.h	/^void VarOrder::newVar(void)$/;"	f	class:VarOrder
 newVar	sat/sat.h	/^      inline Var newVar() { _solver->newVar(); return _curVar++; }$/;"	f	class:SatSolver
 nodeMove	bdd/bddNode.cpp	/^BddNode::nodeMove(unsigned fromLevel, unsigned toLevel, bool& isMoved) const$/;"	f	class:BddNode
 nodeMoveRecur	bdd/bddNode.cpp	/^BddNode::nodeMoveRecur$/;"	f	class:BddNode
+nonEqAddCut	cir/cirMgr.cpp	/^CirMgr::nonEqAddCut()$/;"	f	class:CirMgr
 null	sat/File.h	/^    bool null(void) {               \/\/ TRUE if no file is opened.$/;"	f	class:File
 numBuckets	bdd/myHash.h	/^   size_t numBuckets() const { return _numBuckets; }$/;"	f	class:Hash
 numBuckets	util/myHash.h	/^   size_t numBuckets() const { return _numBuckets; }$/;"	f	class:Hash
@@ -823,12 +829,14 @@ selectionSort	sat/Sort.h	/^template <class T> static inline void selectionSort(T
 selectionSort	sat/Sort.h	/^void selectionSort(T* array, int size, LessThan lt)$/;"	f
 setBddMgr	bdd/bddNode.h	/^   static void setBddMgr(BddMgr* m) { _BddMgr = m; }$/;"	f	class:BddNode
 setBounds	sat/Heap.h	/^    void setBounds (int size) { assert(size >= 0); indices.growTo(size,0); }$/;"	f	class:Heap
+setCutId	cir/cirGate.h	/^   void         setCutId(unsigned id) { _cutId = id; }$/;"	f	class:CirGate
 setDfsOrder	cir/cirGate.h	/^   void setDfsOrder(unsigned order) { _dfsOrder = order; }$/;"	f	class:CirGate
 setEqGate	cir/cirGate.h	/^   void         setEqGate(CirGate* g) { _eqGate = g; }$/;"	f	class:CirGate
 setFecGrp	cir/cirGate.h	/^   void             setFecGrp(IdList* p) { _fecGrp=p; }$/;"	f	class:CirGate
 setFecPhase	cir/cirGate.h	/^   void             setFecPhase(bool phase) { _fecPhase = phase; }$/;"	f	class:CirGate
 setFunc	cir/cirCut.h	/^   void setFunc(BddNode func){ _func = func; }$/;"	f	class:CirCut
 setGateFunc	cir/cirGate.cpp	/^CirGate::setGateFunc(BddNode func){$/;"	f	class:CirGate
+setIsCut	cir/cirGate.h	/^   void         setIsCut(bool cut) { _isCut = cut; }$/;"	f	class:CirGate
 setMaxCutSize	cir/cirCut.h	/^	static void setMaxCutSize(int s){ _maxCutSize = s; }$/;"	f	class:CirCut
 setMemUsage	util/myUsage.h	/^   void setMemUsage() { _currentMem = checkMem() - _initMem; }$/;"	f	class:MyUsage
 setMode	sat/File.h	/^    void setMode(FileMode m) {$/;"	f	class:File

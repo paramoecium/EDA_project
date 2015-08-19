@@ -1,7 +1,10 @@
-#object file
+# object file
 *.o
 *.obj
 
-#static libraries
+# static libraries
 lib/*.a
 lib/*.lib
+
+# testdata
+testcase/*

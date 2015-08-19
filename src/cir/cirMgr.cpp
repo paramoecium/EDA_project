@@ -218,6 +218,9 @@ CirMgr::writeCircuit(const string& filename, bool design) const {
       if(gate == NULL || gate->isPi()) continue;
       gatePrefix = gate->getName().substr(0, prefixSize);
       gateName   = gate->getName().substr(prefixSize);
+		if(isCut()){
+			fout << "_cut( " << gateName << " , " << gateName+"_cut" << ");"
+		}
       if(gatePrefix == prefixName){
          fout << gate->getGateType() << " ( " << gateName;
          for(unsigned i=0, n=gate->getFaninSize(); i<n; ++i){
