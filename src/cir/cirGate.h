@@ -57,6 +57,7 @@ public:
    IdList*      getFecGrp() const { return _fecGrp; }
    void         setEqGate(CirGate* g) { _eqGate = g; }
    CirGate*     getEqGate() const { return _eqGate; }
+	bool         isSamePhase(const CirGate* gate) const;
 
    // Methods about cut
 	virtual void genCutList();

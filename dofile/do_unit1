@@ -1,1 +1,1 @@
-./test testcase/unit1/in_1.v testcase/unit1/in_2.v out_1.v out_2.v
+time ./test testcase/unit1/in_1.v testcase/unit1/in_2.v out_1.v out_2.v

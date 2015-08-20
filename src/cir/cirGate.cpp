@@ -22,7 +22,7 @@ static unsigned dfsFlag = 0;
 // constructor
 CirGate::CirGate(unsigned id, const string& name, const IdList& faninIdList, bool inv): 
    _id(id), _name(name), _isPi(false), _isPo(false), _inv(inv),
-   _faninIdList(faninIdList), _fecGrp(NULL), _eqGate(NULL), _dfsFlag(0) {}
+   _faninIdList(faninIdList), _fecGrp(NULL), _eqGate(NULL), _isCut(false), _dfsFlag(0) {}
 
 CirConst0Gate::CirConst0Gate(unsigned id, const string& name, const IdList& faninIdList, bool inv): 
    CirGate(id, name, faninIdList, inv) {}
@@ -304,4 +304,18 @@ CirGate::getMatchCut(const CirCutList& cutList2, unsigned root2, CirCut*& retCut
       delete [] perm;
    }
    return ret;
+}
+
+bool
+CirGate::isSamePhase(const CirGate* gate) const {
+	assert(gate != NULL);
+	IdList* fecGrp1 = getFecGrp();
+	IdList* fecGrp2 = gate->getFecGrp();
+	assert(fecGrp1 == fecGrp2);
+	bool phase1 = true, phase2 = true;
+	for(unsigned i=0, n=fecGrp1->size(); i<n; ++i){
+		if(fecGrp1->at(i)/2 == getId()) phase1 = fecGrp1->at(i)%2;
+		if(fecGrp2->at(i)/2 == gate->getId()) phase2 = fecGrp1->at(i)%2;
+	}
+	return phase1 == phase2;
 }

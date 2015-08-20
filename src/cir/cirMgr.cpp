@@ -2,6 +2,8 @@
 #include "cirGate.h"
 #include "util.h"
 
+#include <sstream>
+
 using namespace std;
 
 /************************/
@@ -12,6 +14,8 @@ CirMgr* cirMgr;
 /**************************************/
 /*   static variables and functions   */
 /**************************************/
+static int watermark;
+
 static GateType getGateTypeByName(const string& name){
    if(name == "buf" ) return GATE_BUF;
    if(name == "not" ) return GATE_NOT;
@@ -208,6 +212,8 @@ CirMgr::writeCircuit(const string& filename, bool design) const {
          if(tmp) fout << " , ";
          else tmp = true;
          fout << gateName;
+			if(gate->isCut())
+				fout << " , " << gateName+"_cut";
       }
    }
    fout << ";" << endl;
@@ -218,10 +224,13 @@ CirMgr::writeCircuit(const string& filename, bool design) const {
       if(gate == NULL || gate->isPi()) continue;
       gatePrefix = gate->getName().substr(0, prefixSize);
       gateName   = gate->getName().substr(prefixSize);
-		if(isCut()){
-			fout << "_cut( " << gateName << " , " << gateName+"_cut" << ");"
-		}
-      if(gatePrefix == prefixName){
+		if(gatePrefix == prefixName){
+			if(gate->isCut()){
+				ostringstream cutName;
+				cutName << "cut_" << gate->getCutId()/2 << (gate->getCutId()%2? "_bar" : "") << "_1";
+				fout << "_cut " << cutName.str() << " ( " << gateName << " , " << gateName+"_cut" << ");" << endl;
+				gateName += "_cut";
+			}
          fout << gate->getGateType() << " ( " << gateName;
          for(unsigned i=0, n=gate->getFaninSize(); i<n; ++i){
             CirGate* in = gate->getFaninGate(i);
@@ -379,8 +388,8 @@ CirMgr::writeFECPairs(const string& filename) const
       head = _fecGrps[i]->at(0);
       for (unsigned j=0, m=_fecGrps[i]->size(); j<m; ++j){
          current = _fecGrps[i]->at(j);
-         if (current%2 != head%2) fout << "!";
          if (j) fout << " ";
+         if (current%2 != head%2) fout << "!";
          fout << getGateById(current/2)->getName();
       }
       fout << endl;
@@ -438,6 +447,7 @@ CirMgr::mapCut()
 
    bddMgr->init(10, getHashSize(_dfsList.size()*5), 
                     getHashSize(_dfsList.size()*10) );
+	watermark = 1;
    // put all the PO into pairList
    for(unsigned i=0, n=_poList.size(); i<n; ++i){
       gateA = getGateById(_poList[i]);
@@ -506,11 +516,19 @@ CirMgr::updatePairList(CutPair cp, vector<CutPair>& pairList)
    if(inSameFecGroup(gate1, gate2)){
       if(gate1->getMatchCut(gate2->getCutList(), gate2->getId(), cut1, cut2)){
          assert(cut1->size() == cut2->size());
-         cout << "=============" << endl;
-         cout << "matched cut:" << endl;
-         cout << *cut1 << endl;
-         cout << *cut2 << endl;
-         cout << "=============" << endl;
+         // cout << "=============" << endl;
+         // cout << "matched cut:" << endl;
+         // cout << *cut1 << endl;
+         // cout << *cut2 << endl;
+         // cout << "=============" << endl;
+			if(!gate1->isPo() && !gate2->isPo()){
+				bool phase = gate2->isSamePhase(gate1);
+				gate1->setIsCut(true);
+				gate1->setCutId(2*watermark);
+				gate2->setIsCut(true);
+				gate2->setCutId(2*watermark + !phase);
+				++watermark;
+			}
          for(unsigned i=0, n=cut1->size(); i<n; ++i)
             pairList.push_back(make_pair(cut1->getLeaf(i), cut2->getLeaf(i)));
          delete cut1;
@@ -518,7 +536,7 @@ CirMgr::updatePairList(CutPair cp, vector<CutPair>& pairList)
       }
    }
    else{ // only happen when gate1/gate2 are POs
-      
+		// do nothing      
    }
 }
 
@@ -546,7 +564,6 @@ CirMgr::dfsAddCut(CirGate* gate1)
    if(gate1->isMark()|| gate1->isCut()) return;
    gate1->mark();
    // if find eq then cut and stop
-   static unsigned number = 0;
    IdList* fecGrp= gate1->getFecGrp();
    bool cut = false;
    if (fecGrp != NULL && !gate1->isPi()){
@@ -567,15 +584,15 @@ CirMgr::dfsAddCut(CirGate* gate1)
             continue;
          cut = true;
          gate2->setIsCut(true);
-         gate2->setCutId(2*number + phase);
+         gate2->setCutId(2*watermark + phase);
          //cout << gate2->getName() << endl;
       }   
       if (cut){
-         gate1->setIsCut(cut);
-         gate1->setCutId(2*number);
+         gate1->setIsCut(true);
+         gate1->setCutId(2*watermark);
          //cout << gate1->getName() << endl;
          //cout << "=============" << endl;
-         ++number;
+         ++watermark;
          return;
       }
    }
