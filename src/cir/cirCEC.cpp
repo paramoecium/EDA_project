@@ -22,7 +22,7 @@ CirMgr::cec()
    SatSolver solver;
    solver.initialize();
    genProofModel(solver);
-   cout << endl;
+   // cout << endl;
    for (int i=0; i<(int)_fecGrps.size(); ++i){
       for (unsigned j=1, n=_fecGrps[i]->size(); j<n; ++j){
          unsigned g1Num = _fecGrps[i]->at(0);
@@ -34,17 +34,17 @@ CirMgr::cec()
          if (g2->getEqGate() == g1)
             continue;
          bool inv = ((g1Num%2) ^ (g2Num%2));
-         cursorToPrevLine(); cursorClearAfter();
-         cout << _fecGrps.size() << " FEC groups left, "
-              << "solving " << setw(6) << g1->getId() 
-              << " with " << setw(6) << g2->getId() << " ...... ";
+         // cursorToPrevLine(); cursorClearAfter();
+         // cout << _fecGrps.size() << " FEC groups left, "
+         //      << "solving " << setw(6) << g1->getId() 
+         //      << " with " << setw(6) << g2->getId() << " ...... ";
          if (solveGateEqBySat(solver, g1, g2, inv)){
-            cout << "Equivalence!!" << endl;
+         //    cout << "Equivalence!!" << endl;
             g2->setEqGate(g1);
             solver.addBufCNF(g1->getVar(), g2->getVar(), inv);
          }
          else{
-            cout << "UnEquivalence!!" << endl;
+         //    cout << "UnEquivalence!!" << endl;
             doSimBySAT(solver);
             i = -1;
             break;

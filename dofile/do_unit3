@@ -1,1 +1,1 @@
-./test testcase/unit3/in_1.v testcase/unit3/in_2.v out_1.v out_2.v
+./cada071 testcase/unit3/in_1.v testcase/unit3/in_2.v out_1.v out_2.v

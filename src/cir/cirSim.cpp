@@ -79,7 +79,7 @@ CirMgr::randomSim()
    tmp = _dfsList.size();
    while(tmp > 0){ tmp /= 7; maxFail *= 2; }
    
-   cout << numPattern << " patterns simulated." << endl;
+   // cout << numPattern << " patterns simulated." << endl;
    while(fail < maxFail){
       for(unsigned i=0; i<piSize; ++i)
          v[i] = rand();
@@ -88,9 +88,9 @@ CirMgr::randomSim()
       else fail += (checkFec(v)? 0 : 1);
       numPattern++;
       
-      cursorToPrevLine(); cursorClearAfter();
-      cout << numPattern << " patterns simulated.";
-      cout << " fail = " << fail << ", maxFail = " << maxFail << endl;
+      // cursorToPrevLine(); cursorClearAfter();
+      // cout << numPattern << " patterns simulated.";
+      // cout << " fail = " << fail << ", maxFail = " << maxFail << endl;
    }
    delete[] v;
 }

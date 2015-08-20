@@ -311,7 +311,7 @@ CirGate::isSamePhase(const CirGate* gate) const {
 	assert(gate != NULL);
 	IdList* fecGrp1 = getFecGrp();
 	IdList* fecGrp2 = gate->getFecGrp();
-	assert(fecGrp1 == fecGrp2);
+	if(fecGrp1 != fecGrp2) return true;
 	bool phase1 = true, phase2 = true;
 	for(unsigned i=0, n=fecGrp1->size(); i<n; ++i){
 		if(fecGrp1->at(i)/2 == getId()) phase1 = fecGrp1->at(i)%2;

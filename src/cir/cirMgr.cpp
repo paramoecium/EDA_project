@@ -219,6 +219,8 @@ CirMgr::writeCircuit(const string& filename, bool design) const {
    fout << ";" << endl;
 
    // gates
+	unsigned* watermarkArr = new unsigned[_gateList.size()];
+	for(unsigned i=0, n=_gateList.size(); i<n; ++i) watermarkArr[i] = 0;
    for(unsigned i=0, n=_gateList.size(); i<n; ++i){
       gate = _gateList[i];
       if(gate == NULL || gate->isPi()) continue;
@@ -227,8 +229,9 @@ CirMgr::writeCircuit(const string& filename, bool design) const {
 		if(gatePrefix == prefixName){
 			if(gate->isCut()){
 				ostringstream cutName;
-				cutName << "cut_" << gate->getCutId()/2 << (gate->getCutId()%2? "_bar" : "") << "_1";
-				fout << "_cut " << cutName.str() << " ( " << gateName << " , " << gateName+"_cut" << ");" << endl;
+				unsigned cutId = gate->getCutId()/2;
+				cutName << "cut_" << gate->getCutId()/2 << (gate->getCutId()%2? "_bar" : "") << "_" << ++(watermarkArr[cutId]);
+				fout << "_cut " << cutName.str() << " ( " << gateName << " , " << gateName+"_cut" << " );" << endl;
 				gateName += "_cut";
 			}
          fout << gate->getGateType() << " ( " << gateName;
@@ -242,6 +245,7 @@ CirMgr::writeCircuit(const string& filename, bool design) const {
          fout << " );" << endl;
       }
    }
+	delete [] watermarkArr;
 
    // endmodule
    fout << "endmodule" << endl;
@@ -409,7 +413,7 @@ CirMgr::genAllCutList(unsigned k)
       // cout << "size = " << _dfsList[i]->getCutList().size() << endl;
       size += _dfsList[i]->getCutList().size();
    }    
-	cout << "average number of cuts: " << (double)size/_dfsList.size() << endl;
+	// cout << "average number of cuts: " << (double)size/_dfsList.size() << endl;
 }
 
 void
@@ -512,31 +516,31 @@ CirMgr::updatePairList(CutPair cp, vector<CutPair>& pairList)
    CirGate* gate1 = getGateById(cp.first);
    CirGate* gate2 = getGateById(cp.second);
    CirCut *cut1, *cut2;
-   assert(gate1 != NULL && gate2 != NULL);
-   if(inSameFecGroup(gate1, gate2)){
-      if(gate1->getMatchCut(gate2->getCutList(), gate2->getId(), cut1, cut2)){
-         assert(cut1->size() == cut2->size());
-         // cout << "=============" << endl;
-         // cout << "matched cut:" << endl;
-         // cout << *cut1 << endl;
-         // cout << *cut2 << endl;
-         // cout << "=============" << endl;
-			if(!gate1->isPo() && !gate2->isPo()){
-				bool phase = gate2->isSamePhase(gate1);
-				gate1->setIsCut(true);
-				gate1->setCutId(2*watermark);
-				gate2->setIsCut(true);
-				gate2->setCutId(2*watermark + !phase);
-				++watermark;
-			}
-         for(unsigned i=0, n=cut1->size(); i<n; ++i)
-            pairList.push_back(make_pair(cut1->getLeaf(i), cut2->getLeaf(i)));
-         delete cut1;
-         delete cut2;
-      }
-   }
-   else{ // only happen when gate1/gate2 are POs
-		// do nothing      
+	assert(gate1 != NULL && gate2 != NULL);
+	if(!gate1->isPo() && !gate2->isPo() && !gate1->isPi() && !gate2->isPi()){
+		bool phase = !gate2->isSamePhase(gate1);
+		if(!gate1->isCut() && !gate2->isCut()){
+			gate1->setIsCut(true);
+			gate1->setCutId(2*watermark);
+			gate2->setIsCut(true);
+			gate2->setCutId(2*watermark + phase);
+			++watermark;
+		}
+		else if(gate1->isCut() && !gate2->isCut()){
+			gate2->setIsCut(true);
+			gate2->setCutId(gate1->getCutId() ^ phase);
+		}
+		else if(!gate1->isCut() && gate2->isCut()){
+			gate1->setIsCut(true);
+			gate1->setCutId(gate2->getCutId() ^ phase);
+		}
+	}
+	if(inSameFecGroup(gate1, gate2) && gate1->getMatchCut(gate2->getCutList(), gate2->getId(), cut1, cut2)){
+		assert(cut1->size() == cut2->size());
+		for(unsigned i=0, n=cut1->size(); i<n; ++i)
+			pairList.push_back(make_pair(cut1->getLeaf(i), cut2->getLeaf(i)));
+		delete cut1;
+		delete cut2;
    }
 }
 
